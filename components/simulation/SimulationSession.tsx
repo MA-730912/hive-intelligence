@@ -5,6 +5,7 @@ import VentilatorPanel,{type VentSettings} from "./VentilatorPanel";
 import InstructorPhysiology from "./InstructorPhysiology";
 import VirtualTeamPanel from "./VirtualTeamPanel";
 import DebriefPanel from "./DebriefPanel";
+import EmergencyRoomScene from "./EmergencyRoomScene";
 import {septicShockSimulation as scenario} from "@/lib/simulation/scenarios/septic-shock";
 import {generateVariableLabSet} from "@/lib/simulation/lab-engine";
 import {applyMedicationEffect} from "@/lib/simulation/medication-engine";
@@ -76,7 +77,8 @@ export default function SimulationSession(){
 
     {mode==="learner"?<div className="chat">
       <section>
-        <MonitorScreen vitals={currentVitals}/>
+        <EmergencyRoomScene vitals={currentVitals} intubated={intubated} onAction={action=>{log(`Environment interaction: ${action}`);award(1)}}/>
+        <div style={{marginTop:18}}><MonitorScreen vitals={currentVitals}/></div>
         {intubated&&<div style={{marginTop:18}}><VentilatorPanel settings={ventSettings} etco2={currentVitals.etco2??36}/></div>}
 
         <div className="card" style={{marginTop:18}}>
