@@ -100,6 +100,15 @@ export default function SepticShockCaseStudy(){
       </section>
     </div>
 
+    <section className="card" style={{marginTop:18}}>
+      <div className="eyebrow">Inpatient continuation</div>
+      <h3>From resuscitation to discharge documentation</h3>
+      <p className="muted">Follow the same synthetic patient through ICU, surgical debridement, VAC therapy, PICC-based IV antibiotics and HITH discharge, then see how HIVE turns the structured admission data into a clinician-reviewable discharge summary.</p>
+      <div className="actions">
+        <Link className="btn primary" href="/case-studies/septic-shock-anaphylaxis-dka/discharge-summary">Generate Discharge Summary Demo</Link>
+      </div>
+    </section>
+
     <div className="actions" style={{marginTop:22}}>
       <Link className="btn primary" href="/workspace">Open Clinical Workspace</Link>
       <Link className="btn" href="/knowledge">Interrogate Clinical Knowledge</Link>
