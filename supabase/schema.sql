@@ -66,6 +66,12 @@ alter table public.organization_members enable row level security;
 alter table public.knowledge_documents enable row level security;
 alter table public.knowledge_chunks enable row level security;
 
+grant select on public.organizations to authenticated;
+grant select on public.organization_members to authenticated;
+grant select, insert, update, delete on public.knowledge_documents to authenticated;
+grant select, insert, delete on public.knowledge_chunks to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+
 create policy "members can view their organization"
 on public.organizations for select to authenticated
 using (
@@ -76,15 +82,9 @@ using (
   )
 );
 
-create policy "members can view memberships in their organization"
+create policy "users can view their own organization memberships"
 on public.organization_members for select to authenticated
-using (
-  exists (
-    select 1 from public.organization_members self
-    where self.organization_id = organization_members.organization_id
-      and self.user_id = (select auth.uid())
-  )
-);
+using (user_id = (select auth.uid()));
 
 create policy "members can view organization documents"
 on public.knowledge_documents for select to authenticated
