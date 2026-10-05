@@ -50,6 +50,13 @@ create table if not exists public.knowledge_chunks (
 create index if not exists knowledge_documents_org_idx
   on public.knowledge_documents(organization_id, created_at desc);
 
+create index if not exists organization_members_user_idx
+  on public.organization_members(user_id);
+
+create index if not exists knowledge_documents_uploaded_by_idx
+  on public.knowledge_documents(uploaded_by)
+  where uploaded_by is not null;
+
 create index if not exists knowledge_chunks_document_idx
   on public.knowledge_chunks(document_id, chunk_index);
 
