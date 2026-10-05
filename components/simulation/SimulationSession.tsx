@@ -1,7 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
 import MonitorScreen from "./MonitorScreen";
-import VentilatorPanel,{type VentSettings} from "./VentilatorPanel";
+import VentilatorPanel,{type VentSettings,type VentPathology} from "./VentilatorPanel";
 import InstructorPhysiology from "./InstructorPhysiology";
 import VirtualTeamPanel from "./VirtualTeamPanel";
 import DebriefPanel from "./DebriefPanel";
@@ -23,6 +23,7 @@ type SharedState={
   vitals:SimulationVitals;
   score:number;
   ventSettings:VentSettings;
+  ventPathology:VentPathology;
   status:SessionStatus;
 };
 
@@ -40,6 +41,7 @@ export default function SimulationSession(){
   const [drawNumber,setDrawNumber]=useState(0);
   const [currentVitals,setCurrentVitals]=useState<SimulationVitals>(scenario.states[0].vitals);
   const [ventSettings,setVentSettings]=useState<VentSettings>({fio2:0.60,vt:450,rate:18,peep:8,ppeak:24});
+  const [ventPathology,setVentPathology]=useState<VentPathology>("normal");
   const [automationEnabled,setAutomationEnabled]=useState(true);
   const [firedTriggers,setFiredTriggers]=useState<string[]>([]);
 
@@ -54,6 +56,7 @@ export default function SimulationSession(){
       setCurrentVitals(shared.vitals);
       setScore(shared.score);
       setVentSettings(shared.ventSettings);
+      setVentPathology(shared.ventPathology);
       setStatus(shared.status);
     }
     if(message.type==="event"){
@@ -89,8 +92,8 @@ export default function SimulationSession(){
 
   useEffect(()=>{
     if(role!=="instructor") return;
-    publish({type:"state",payload:{stateIndex,vitals:currentVitals,score,ventSettings,status} satisfies SharedState});
-  },[role,stateIndex,currentVitals,score,ventSettings,status,publish]);
+    publish({type:"state",payload:{stateIndex,vitals:currentVitals,score,ventSettings,ventPathology,status} satisfies SharedState});
+  },[role,stateIndex,currentVitals,score,ventSettings,ventPathology,status,publish]);
 
   function addEvent(label:string,broadcast=true){
     const at=new Date().toLocaleTimeString();
@@ -209,7 +212,7 @@ export default function SimulationSession(){
       <section>
         <EmergencyRoomScene vitals={currentVitals} intubated={intubated} onAction={action=>{if(status==="running"){addEvent(`Environment interaction: ${action}`);award(1)}}}/>
         <div style={{marginTop:18}}><MonitorScreen vitals={currentVitals}/></div>
-        {intubated&&<div style={{marginTop:18}}><VentilatorPanel settings={ventSettings} etco2={currentVitals.etco2??36}/></div>}
+        {intubated&&<div style={{marginTop:18}}><VentilatorPanel settings={ventSettings} pathology={ventPathology} etco2={currentVitals.etco2??36}/></div>}
 
         {status!=="running"&&<div className="demo-banner" style={{marginTop:18}}><strong>Session {status}.</strong> Learner actions are enabled when the instructor starts/resumes the scenario.</div>}
 
@@ -271,7 +274,7 @@ export default function SimulationSession(){
 
         <InstructorPhysiology vitals={currentVitals} onChange={setCurrentVitals}/>
         <AutomationPanel enabled={automationEnabled} fired={firedTriggers} onToggle={()=>setAutomationEnabled(v=>!v)}/>
-        {intubated&&<div style={{marginTop:18}}><VentilatorPanel settings={ventSettings} onChange={setVentSettings} editable etco2={currentVitals.etco2??36}/></div>}
+        {intubated&&<div style={{marginTop:18}}><VentilatorPanel settings={ventSettings} onChange={setVentSettings} pathology={ventPathology} onPathologyChange={p=>{setVentPathology(p);addEvent(`Instructor changed ventilator pathology to ${p}`)}} editable etco2={currentVitals.etco2??36}/></div>}
       </section>
 
       <aside>
