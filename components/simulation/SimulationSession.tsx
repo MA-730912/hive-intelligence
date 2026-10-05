@@ -11,10 +11,11 @@ import ReplayTimeline,{type ReplayEvent} from "./ReplayTimeline";
 import ObserverPanel from "./ObserverPanel";
 import AutomationPanel from "./AutomationPanel";
 import VirtualNurseChat from "./VirtualNurseChat";
+import InvestigationQueue from "./InvestigationQueue";
 import {septicShockSimulation as scenario} from "@/lib/simulation/scenarios/septic-shock";
 import {generateVariableLabSet} from "@/lib/simulation/lab-engine";
 import {applyMedicationEffect} from "@/lib/simulation/medication-engine";
-import {useSimulationChannel,type SimulationBroadcast} from "@/lib/simulation/realtime-channel";
+import {useSimulationChannel,type SimulationBroadcast,type SimulationInvestigationRequest,type SimulationInvestigationResult} from "@/lib/simulation/realtime-channel";
 import {evaluateAutoTriggers} from "@/lib/simulation/auto-trigger";
 import type {LabSet,SimulationVitals} from "@/lib/simulation/types";
 
@@ -39,6 +40,7 @@ export default function SimulationSession(){
   const [releasedLabs,setReleasedLabs]=useState<LabSet[]>([]);
   const [releasedImaging,setReleasedImaging]=useState<string[]>([]);
   const [drawNumber,setDrawNumber]=useState(0);
+  const [pendingRequests,setPendingRequests]=useState<SimulationInvestigationRequest[]>([]);
   const [currentVitals,setCurrentVitals]=useState<SimulationVitals>(scenario.states[0].vitals);
   const [ventSettings,setVentSettings]=useState<VentSettings>({fio2:0.60,vt:450,rate:18,peep:8,ppeak:24});
   const [ventPathology,setVentPathology]=useState<VentPathology>("normal");
@@ -64,6 +66,20 @@ export default function SimulationSession(){
       setReplayEvents(v=>[...v,event]);
       setMessages(v=>[...v,`${message.payload.at} — ${message.payload.label}`]);
     }
+    if(message.type==="investigation-request" && role==="instructor"){
+      setPendingRequests(v=>v.some(r=>r.id===message.payload.id)?v:[...v,message.payload]);
+    }
+    if(message.type==="investigation-result" && role!=="instructor"){
+      const result=message.payload as SimulationInvestigationResult;
+      if(result.kind==="lab"){
+        setReleasedLabs(v=>[...v,result.data as LabSet]);
+      } else {
+        setReleasedImaging(v=>v.includes(result.name)?v:[...v,result.name]);
+      }
+      const event={id:Date.now()+Math.floor(Math.random()*1000),at:result.releasedAt,label:`Result released: ${result.name}`};
+      setReplayEvents(v=>[...v,event]);
+      setMessages(v=>[...v,`${result.releasedAt} — Result released: ${result.name}`]);
+    }
     if(message.type==="control"){
       if(message.payload.status==="reset"){
         setStatus("lobby");
@@ -76,6 +92,7 @@ export default function SimulationSession(){
         setReleasedLabs([]);
         setReleasedImaging([]);
         setFiredTriggers([]);
+        setPendingRequests([]);
       } else {
         setStatus(message.payload.status);
       }
@@ -118,6 +135,7 @@ export default function SimulationSession(){
       setReleasedLabs([]);
       setReleasedImaging([]);
       setFiredTriggers([]);
+      setPendingRequests([]);
       return;
     }
     setStatus(next);
@@ -140,16 +158,37 @@ export default function SimulationSession(){
     addEvent(`Medication: ${name} — ${dose} ${route}. ${result.feedback}`);
   }
 
-  function requestLab(){
+  function requestInvestigation(kind:"lab"|"imaging",name:string){
     if(status!=="running") return;
-    const base=state.labs[0];
-    if(!base) return;
-    const nextDraw=drawNumber+1;
-    setDrawNumber(nextDraw);
-    const generated=generateVariableLabSet(base,`${scenario.id}:90kg`,nextDraw);
-    setReleasedLabs(v=>[...v,generated]);
-    award(2);
-    addEvent(`Lab requested: ${generated.name}`);
+    const requestedAt=new Date().toLocaleTimeString();
+    const request:SimulationInvestigationRequest={
+      id:`${kind}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+      kind,
+      name,
+      requestedAt,
+    };
+    publish({type:"investigation-request",payload:request});
+    addEvent(`Investigation requested: ${name}`);
+    award(1);
+  }
+
+  function releaseInvestigation(request:SimulationInvestigationRequest){
+    const releasedAt=new Date().toLocaleTimeString();
+    if(request.kind==="lab"){
+      const base=state.labs[0];
+      if(!base) return;
+      const nextDraw=drawNumber+1;
+      setDrawNumber(nextDraw);
+      const generated=generateVariableLabSet(base,`${scenario.id}:90kg`,nextDraw);
+      publish({type:"investigation-result",payload:{id:request.id,kind:"lab",name:generated.name,releasedAt,data:generated}});
+      addEvent(`Faculty released lab result: ${generated.name}`);
+    } else {
+      const imaging=scenario.imaging.find(i=>i.name===request.name);
+      if(!imaging) return;
+      publish({type:"investigation-result",payload:{id:request.id,kind:"imaging",name:imaging.name,releasedAt,data:imaging.report}});
+      addEvent(`Faculty released imaging report: ${imaging.name}`);
+    }
+    setPendingRequests(v=>v.filter(r=>r.id!==request.id));
   }
 
   useEffect(()=>{
@@ -229,8 +268,8 @@ export default function SimulationSession(){
         <div className="card" style={{marginTop:18}}>
           <div className="eyebrow">Investigations</div>
           <div className="chips" style={{marginTop:12}}>
-            <button disabled={status!=="running"} className="btn" onClick={requestLab}>Request current blood panel</button>
-            {scenario.imaging.map(i=><button disabled={status!=="running"} className="btn" key={i.name} onClick={()=>{setReleasedImaging(v=>v.includes(i.name)?v:[...v,i.name]);addEvent(`Imaging requested: ${i.name}`);award(1)}}>{i.name}</button>)}
+            <button disabled={status!=="running"} className="btn" onClick={()=>requestInvestigation("lab","Current blood panel")}>Request current blood panel</button>
+            {scenario.imaging.map(i=><button disabled={status!=="running"} className="btn" key={i.name} onClick={()=>requestInvestigation("imaging",i.name)}>{i.name}</button>)}
           </div>
 
           {releasedLabs.map(l=><div className="message ai" key={l.name} style={{marginTop:14}}>
@@ -274,6 +313,7 @@ export default function SimulationSession(){
 
         <InstructorPhysiology vitals={currentVitals} onChange={setCurrentVitals}/>
         <AutomationPanel enabled={automationEnabled} fired={firedTriggers} onToggle={()=>setAutomationEnabled(v=>!v)}/>
+        <InvestigationQueue requests={pendingRequests} onRelease={releaseInvestigation} onDismiss={id=>setPendingRequests(v=>v.filter(r=>r.id!==id))}/>
         {intubated&&<div style={{marginTop:18}}><VentilatorPanel settings={ventSettings} onChange={setVentSettings} pathology={ventPathology} onPathologyChange={p=>{setVentPathology(p);addEvent(`Instructor changed ventilator pathology to ${p}`)}} editable etco2={currentVitals.etco2??36}/></div>}
       </section>
 
