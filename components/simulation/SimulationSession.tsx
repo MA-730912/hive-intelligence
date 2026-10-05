@@ -9,10 +9,12 @@ import EmergencyRoomScene from "./EmergencyRoomScene";
 import SessionControls,{type SessionRole,type SessionStatus} from "./SessionControls";
 import ReplayTimeline,{type ReplayEvent} from "./ReplayTimeline";
 import ObserverPanel from "./ObserverPanel";
+import AutomationPanel from "./AutomationPanel";
 import {septicShockSimulation as scenario} from "@/lib/simulation/scenarios/septic-shock";
 import {generateVariableLabSet} from "@/lib/simulation/lab-engine";
 import {applyMedicationEffect} from "@/lib/simulation/medication-engine";
 import {useSimulationChannel,type SimulationBroadcast} from "@/lib/simulation/realtime-channel";
+import {evaluateAutoTriggers} from "@/lib/simulation/auto-trigger";
 import type {LabSet,SimulationVitals} from "@/lib/simulation/types";
 
 type SharedState={
@@ -37,6 +39,8 @@ export default function SimulationSession(){
   const [drawNumber,setDrawNumber]=useState(0);
   const [currentVitals,setCurrentVitals]=useState<SimulationVitals>(scenario.states[0].vitals);
   const [ventSettings,setVentSettings]=useState<VentSettings>({fio2:0.60,vt:450,rate:18,peep:8,ppeak:24});
+  const [automationEnabled,setAutomationEnabled]=useState(true);
+  const [firedTriggers,setFiredTriggers]=useState<string[]>([]);
 
   const state=scenario.states[stateIndex];
   const intubated=state.id==="intubated"||state.id==="recovery";
@@ -67,6 +71,7 @@ export default function SimulationSession(){
         setReplayEvents([]);
         setReleasedLabs([]);
         setReleasedImaging([]);
+        setFiredTriggers([]);
       } else {
         setStatus(message.payload.status);
       }
@@ -108,6 +113,7 @@ export default function SimulationSession(){
       setReplayEvents([]);
       setReleasedLabs([]);
       setReleasedImaging([]);
+      setFiredTriggers([]);
       return;
     }
     setStatus(next);
@@ -141,6 +147,24 @@ export default function SimulationSession(){
     award(2);
     addEvent(`Lab requested: ${generated.name}`);
   }
+
+  useEffect(()=>{
+    if(role!=="instructor"||status!=="running"||!automationEnabled) return;
+    const results=evaluateAutoTriggers({
+      elapsedSeconds,
+      stateId:state.id,
+      events:messages,
+      fired:firedTriggers,
+      vitals:currentVitals,
+    });
+    if(results.length===0) return;
+    for(const result of results){
+      setFiredTriggers(v=>v.includes(result.id)?v:[...v,result.id]);
+      setCurrentVitals(result.vitals);
+      award(result.scoreDelta);
+      addEvent(result.label);
+    }
+  },[elapsedSeconds,role,status,automationEnabled,state.id,messages,firedTriggers,currentVitals]);
 
   function teamAction(teamRole:string,action:string){
     if(status!=="running") return;
@@ -244,6 +268,7 @@ export default function SimulationSession(){
         </div>
 
         <InstructorPhysiology vitals={currentVitals} onChange={setCurrentVitals}/>
+        <AutomationPanel enabled={automationEnabled} fired={firedTriggers} onToggle={()=>setAutomationEnabled(v=>!v)}/>
         {intubated&&<div style={{marginTop:18}}><VentilatorPanel settings={ventSettings} onChange={setVentSettings} editable etco2={currentVitals.etco2??36}/></div>}
       </section>
 
