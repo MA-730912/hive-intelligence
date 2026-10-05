@@ -8,7 +8,7 @@ export const septicShockAnaphylaxisCase = {
     weightKg: 90,
   },
   presentation:
-    "A 50-year-old man weighing 90 kg presents critically unwell with severe right lower-leg pain, rapidly progressive swelling, fever, hypotension, tachycardia and confusion. Initial investigations are consistent with diabetic ketoacidosis. The limb examination raises concern for necrotising fasciitis. During early treatment he develops immediate anaphylaxis after exposure to a penicillin-class antibiotic.",
+    "A 50-year-old man weighing 90 kg presents critically unwell with severe left lower-leg pain, rapidly progressive swelling, fever, hypotension, tachycardia and confusion. Initial investigations are consistent with diabetic ketoacidosis. The limb examination raises concern for necrotising fasciitis. During early treatment he develops immediate anaphylaxis after exposure to a penicillin-class antibiotic.",
   observations: [
     "BP 78/46 mmHg",
     "HR 132/min",
@@ -128,6 +128,84 @@ export const septicShockAnaphylaxisCase = {
     "How should HIVE behave when the local antimicrobial guideline is unavailable or ambiguous?",
     "Which actions should be auditable in the HIVE Control Centre?",
   ],
+  inpatientCourse: {
+    admissionDiagnosis: [
+      "Septic shock from severe left lower-limb soft-tissue infection / suspected necrotising fasciitis",
+      "Diabetic ketoacidosis",
+      "Anaphylaxis to a penicillin-class antibiotic during early treatment",
+    ],
+    icuStay: "Approximately 7 days in ICU for management of shock, DKA and postoperative critical care.",
+    procedures: [
+      "Urgent surgical debridement of the left lower leg for source control",
+      "Ongoing negative-pressure wound therapy (VAC dressing)",
+      "PICC line insertion for prolonged intravenous antimicrobial therapy",
+    ],
+    currentTherapy: [
+      "IV vancomycin via PICC under HITH",
+      "IV meropenem via PICC under HITH",
+      "VAC dressing / wound management",
+    ],
+    resolvedOrImproved: [
+      "Shock resolved sufficiently for discharge from ICU and hospital",
+      "DKA resolved",
+      "No ongoing anaphylaxis after the acute reaction",
+    ],
+    dischargeDestination: "Home under Hospital in the Home (HITH) with GP follow-up.",
+    followUp: [
+      "HITH for IV antibiotic administration, PICC care and clinical monitoring",
+      "Wound / surgical team follow-up for VAC dressing and left-leg wound review",
+      "GP follow-up for overall recovery, diabetes review and medication reconciliation",
+      "Infectious Diseases / treating team oversight of antimicrobial duration and de-escalation as clinically indicated",
+    ],
+  },
+  dischargeSummaryDemo: {
+    generatedFrom: [
+      "Initial emergency presentation",
+      "ICU course",
+      "Operative source-control history",
+      "Current wound status",
+      "Current IV antimicrobial therapy",
+      "PICC / HITH plan",
+      "Known severe drug allergy",
+      "Follow-up requirements",
+    ],
+    summary: {
+      patient: "50-year-old man, 90 kg",
+      principalDiagnosis: "Septic shock secondary to severe left lower-limb soft-tissue infection / necrotising fasciitis requiring operative debridement.",
+      additionalDiagnoses: [
+        "Diabetic ketoacidosis — resolved during admission",
+        "Immediate anaphylaxis to a penicillin-class antibiotic",
+      ],
+      hospitalCourse:
+        "The patient presented critically unwell with septic shock, DKA and a rapidly progressive left lower-limb soft-tissue infection concerning for necrotising fasciitis. During early antimicrobial treatment he developed immediate anaphylaxis following exposure to a penicillin-class antibiotic. He required ICU admission for approximately one week for management of shock, DKA and postoperative critical care. Urgent surgical source control was undertaken with debridement of the left lower leg. He subsequently improved clinically and was transitioned to ongoing wound care with a VAC dressing.",
+      procedures: [
+        "Surgical debridement of left lower leg",
+        "VAC / negative-pressure wound dressing",
+        "PICC line placement",
+      ],
+      dischargeTreatment: [
+        "IV vancomycin via PICC under HITH",
+        "IV meropenem via PICC under HITH",
+        "VAC dressing care under the treating wound / surgical plan",
+      ],
+      allergy:
+        "Penicillin-class antibiotic — immediate anaphylaxis during this admission. This must remain prominently documented and reconciled across all care settings.",
+      followUp: [
+        "HITH: IV antibiotics, PICC monitoring and clinical review",
+        "Surgical / wound service: VAC dressing and wound review",
+        "General Practitioner: post-discharge review, diabetes follow-up and medication reconciliation",
+        "Treating Infectious Diseases / hospital team: antimicrobial duration and modification according to microbiology, clinical response and local guidance",
+      ],
+      safetyNet: [
+        "Urgent reassessment for fever, rigors, worsening leg pain/swelling, spreading erythema, wound deterioration or systemic illness",
+        "Urgent review for PICC complications including pain, redness, swelling, leakage or line dysfunction",
+        "Emergency care for any recurrent features of anaphylaxis",
+        "Seek urgent care for recurrent hyperglycaemia, ketones, vomiting or symptoms concerning for DKA",
+      ],
+      provenanceNote:
+        "This demonstration summary is generated only from the structured synthetic case facts supplied to HIVE. Culture results, antimicrobial doses, duration, discharge medications and laboratory values are intentionally not invented when absent from the source data.",
+    },
+  },
   safety:
     "Synthetic educational case only. It is designed to demonstrate HIVE Intelligence workflows and simulation capability. Real clinical care must follow current local protocols, senior clinician judgement and specialist advice.",
 } as const;
