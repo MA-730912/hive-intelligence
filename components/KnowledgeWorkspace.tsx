@@ -4,8 +4,21 @@ import {useState} from "react";
 
 type Result = {
   answer: string;
-  citations: Array<{id:string;title:string;version:string;owner:string;updated:string}>;
-  meta: {provider:string;model:string;mode:"live"|"retrieval-only"};
+  citations: Array<{
+    id:string;
+    title:string;
+    sourceFilename?:string|null;
+    similarity?:number|null;
+    version?:string;
+    owner?:string;
+    updated?:string;
+  }>;
+  meta: {
+    provider:string;
+    model:string;
+    mode:"live"|"retrieval-only";
+    knowledgeSource:"supabase-pgvector"|"demo-catalogue";
+  };
 };
 
 const starter="What does our policy say about a haemodynamically unstable patient with suspected STEMI?";
@@ -36,6 +49,7 @@ export default function KnowledgeWorkspace(){
     <aside className="side">
       <Link href="/workspace">Clinical Workspace</Link>
       <Link className="active" href="/knowledge">Clinical Knowledge</Link>
+      <Link href="/knowledge/documents">Knowledge Documents</Link>
       <a>Document Intelligence</a>
       <a>Simulation Studio</a>
       <Link href="/dashboard">Control Centre</Link>
@@ -46,10 +60,10 @@ export default function KnowledgeWorkspace(){
           <div className="eyebrow">Grounded clinical knowledge</div>
           <h2 style={{margin:"6px 0"}}>Clinical Knowledge</h2>
         </div>
-        <span className="status"><span className="dot"/> Demo source library</span>
+        <Link href="/knowledge/documents" className="btn">Manage documents</Link>
       </div>
 
-      <div className="demo-banner"><strong>Guardrail:</strong> this MVP answers from the retrieved demonstration policies only. If supporting material is absent, it should say so rather than invent local policy.</div>
+      <div className="demo-banner"><strong>Guardrail:</strong> HIVE answers only from retrieved approved material. If the knowledge base does not contain support for an answer, it should say so rather than invent local policy.</div>
 
       <div className="chat">
         <section className="card case">
@@ -63,14 +77,23 @@ export default function KnowledgeWorkspace(){
             <div className="message ai" style={{marginTop:18}}>
               <strong>Source-backed answer</strong>
               <p style={{whiteSpace:"pre-wrap"}}>{result.answer}</p>
-              <div className="chips"><span className="chip">{result.meta.mode==="live"?"AI synthesis":"Retrieval only"}</span><span className="chip">Citations required</span></div>
+              <div className="chips">
+                <span className="chip">{result.meta.mode==="live"?"AI synthesis":"Retrieval only"}</span>
+                <span className="chip">{result.meta.knowledgeSource==="supabase-pgvector"?"Supabase pgvector":"Demo catalogue"}</span>
+                <span className="chip">Citations required</span>
+              </div>
             </div>
 
             <div className="message">
               <strong>Retrieved sources</strong>
               {result.citations.length===0?<p className="muted">No supporting source retrieved.</p>:result.citations.map((source,index)=><div key={source.id} style={{marginTop:14}}>
                 <b>[{index+1}] {source.title}</b>
-                <div className="muted">{source.version} · {source.owner} · Updated {source.updated}</div>
+                <div className="muted">
+                  {source.sourceFilename||source.version||"Approved knowledge source"}
+                  {typeof source.similarity==="number"?` · ${Math.round(source.similarity*100)}% semantic similarity`:""}
+                  {source.owner?` · ${source.owner}`:""}
+                  {source.updated?` · Updated ${source.updated}`:""}
+                </div>
               </div>)}
             </div>
           </>}
@@ -79,10 +102,10 @@ export default function KnowledgeWorkspace(){
         <aside className="card">
           <div className="eyebrow">Knowledge boundary</div>
           <h3>Approved sources only</h3>
-          <p className="muted">The current library contains synthetic policies created specifically for the MVP. They are clearly labelled and are not real hospital protocols.</p>
+          <p className="muted">When Supabase RAG is configured, queries are embedded and matched against organisation-scoped document chunks in pgvector.</p>
           <hr style={{borderColor:"var(--line)",margin:"20px 0"}}/>
-          <div className="eyebrow">Production path</div>
-          <p className="muted">Replace the demo catalogue with organisation-approved documents, chunking, embeddings and pgvector retrieval while keeping the same answer-and-citation interface.</p>
+          <div className="eyebrow">Fallback</div>
+          <p className="muted">Until the dedicated database and embedding provider are configured, the clearly-labelled synthetic demonstration catalogue remains available for the Firmus demo.</p>
         </aside>
       </div>
     </main>
