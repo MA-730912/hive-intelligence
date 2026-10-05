@@ -1,32 +1,59 @@
-import { NextResponse } from "next/server";
 import { analyseClinicalCase } from "@/lib/ai/clinical";
+import {
+  auditEvent,
+  createRequestContext,
+  enforceJsonRequest,
+  enforceRateLimit,
+  jsonResponse,
+  safeErrorResponse,
+} from "@/lib/security/http";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const ctx=createRequestContext(request,"/api/clinical/analyse");
   try {
+    const rate=enforceRateLimit(request,"clinical-analyse",30);
+    if(rate) return rate;
+
+    const contentType=enforceJsonRequest(request,32_000);
+    if(contentType) return contentType;
+
     const body = await request.json();
     const caseText = typeof body?.caseText === "string" ? body.caseText.trim() : "";
 
     if (caseText.length < 20) {
-      return NextResponse.json(
+      return jsonResponse(
         { error: "Enter a meaningful synthetic clinical case before analysis." },
-        { status: 400 }
+        ctx.requestId,
+        400
       );
     }
 
     if (caseText.length > 12000) {
-      return NextResponse.json(
+      return jsonResponse(
         { error: "Case text exceeds the MVP limit of 12,000 characters." },
-        { status: 413 }
+        ctx.requestId,
+        413
       );
     }
 
+    auditEvent("clinical_analysis_requested",{
+      requestId:ctx.requestId,
+      route:ctx.route,
+      characters:caseText.length,
+    });
+
     const analysis = await analyseClinicalCase(caseText);
-    return NextResponse.json({ analysis });
+
+    auditEvent("clinical_analysis_completed",{
+      requestId:ctx.requestId,
+      route:ctx.route,
+      durationMs:Date.now()-ctx.startedAt,
+    });
+
+    return jsonResponse({ analysis },ctx.requestId);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to analyse the clinical case.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return safeErrorResponse(error,"Unable to analyse the clinical case.",ctx.requestId);
   }
 }
