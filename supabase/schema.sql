@@ -42,7 +42,7 @@ create table if not exists public.knowledge_chunks (
   content text not null,
   char_count integer not null,
   metadata jsonb not null default '{}'::jsonb,
-  embedding extensions.vector(1536),
+  embedding extensions.vector(384),
   created_at timestamptz not null default now(),
   unique(document_id, chunk_index)
 );
@@ -250,7 +250,7 @@ using (
 );
 
 create or replace function public.match_knowledge_chunks(
-  query_embedding extensions.vector(1536),
+  query_embedding extensions.vector(384),
   p_organization_id uuid,
   match_threshold float default 0.72,
   match_count int default 8
