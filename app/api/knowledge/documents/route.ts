@@ -1,5 +1,4 @@
 import { createHash, randomUUID } from "crypto";
-import { NextResponse } from "next/server";
 import { embedTexts, isEmbeddingConfigured } from "@/lib/ai/embeddings";
 import { chunkText } from "@/lib/knowledge/chunk";
 import {
@@ -7,6 +6,13 @@ import {
   getSupabaseAdmin,
   isSupabaseConfigured,
 } from "@/lib/supabase/admin";
+import {
+  auditEvent,
+  createRequestContext,
+  enforceRateLimit,
+  jsonResponse,
+  safeErrorResponse,
+} from "@/lib/security/http";
 
 export const runtime = "nodejs";
 
@@ -15,6 +21,12 @@ const TEXT_MIME_TYPES = new Set([
   "text/markdown",
   "text/csv",
   "application/json",
+]);
+
+const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  ...TEXT_MIME_TYPES,
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
 
 function safeFilename(name: string) {
@@ -29,10 +41,14 @@ async function embedInBatches(contents: string[], batchSize = 32) {
   return vectors;
 }
 
-export async function GET() {
+export async function GET(request:Request) {
+  const ctx=createRequestContext(request,"/api/knowledge/documents");
   try {
+    const rate=enforceRateLimit(request,"knowledge-documents-list",120);
+    if(rate) return rate;
+
     if (!isSupabaseConfigured()) {
-      return NextResponse.json({ configured: false, documents: [] });
+      return jsonResponse({ configured: false, documents: [] },ctx.requestId);
     }
 
     const supabase = getSupabaseAdmin();
@@ -45,54 +61,78 @@ export async function GET() {
       .limit(100);
 
     if (error) throw new Error(error.message);
-    return NextResponse.json({ configured: true, documents: data || [] });
+    return jsonResponse({ configured: true, documents: data || [] },ctx.requestId);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to load documents.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return safeErrorResponse(error,"Unable to load documents.",ctx.requestId);
   }
 }
 
 export async function POST(request: Request) {
+  const ctx=createRequestContext(request,"/api/knowledge/documents");
+  let documentId:string|null=null;
+  let organisationId:string|null=null;
+
   try {
+    const rate=enforceRateLimit(request,"knowledge-documents-upload",10);
+    if(rate) return rate;
+
     if (!isSupabaseConfigured()) {
-      return NextResponse.json(
+      return jsonResponse(
         { error: "Supabase RAG is not configured for this deployment." },
-        { status: 503 }
+        ctx.requestId,
+        503
       );
+    }
+
+    const contentType=request.headers.get("content-type") || "";
+    if(!contentType.toLowerCase().includes("multipart/form-data")){
+      return jsonResponse({error:"Content-Type must be multipart/form-data."},ctx.requestId,415);
+    }
+
+    const declaredLength=Number(request.headers.get("content-length") || "0");
+    if(Number.isFinite(declaredLength) && declaredLength>27*1024*1024){
+      return jsonResponse({error:"Upload request exceeds the 27 MB transport limit."},ctx.requestId,413);
     }
 
     const form = await request.formData();
     const fileValue = form.get("file");
     const file = fileValue instanceof File && fileValue.size > 0 ? fileValue : null;
     const pastedText = String(form.get("text") || "").trim();
-    const requestedTitle = String(form.get("title") || "").trim();
+    const requestedTitle = String(form.get("title") || "").trim().slice(0,300);
 
     if (!file && !pastedText) {
-      return NextResponse.json(
-        { error: "Upload a document or paste document text." },
-        { status: 400 }
-      );
+      return jsonResponse({ error: "Upload a document or paste document text." },ctx.requestId,400);
     }
 
     if (file && file.size > 25 * 1024 * 1024) {
-      return NextResponse.json({ error: "File exceeds the 25 MB limit." }, { status: 413 });
+      return jsonResponse({ error: "File exceeds the 25 MB limit." },ctx.requestId,413);
     }
 
-    const organisationId = getHiveOrganisationId();
+    if(file && file.type && !ALLOWED_UPLOAD_MIME_TYPES.has(file.type)){
+      return jsonResponse({error:"Unsupported file type for HIVE Knowledge."},ctx.requestId,415);
+    }
+
+    if(pastedText.length>2_000_000){
+      return jsonResponse(
+        { error: "Extracted text exceeds the current 2,000,000 character ingestion limit." },
+        ctx.requestId,
+        413
+      );
+    }
+
+    organisationId = getHiveOrganisationId();
     const supabase = getSupabaseAdmin();
-    const documentId = randomUUID();
-    const filename = file ? safeFilename(file.name) : "pasted-policy.txt";
+    documentId = randomUUID();
+    const filename = file ? safeFilename(file.name).slice(0,180) : "pasted-policy.txt";
     const mimeType = file?.type || "text/plain";
     const title =
       requestedTitle ||
-      (file ? file.name.replace(/\.[^.]+$/, "") : "Untitled clinical policy");
-    const storagePath = file
-      ? `${organisationId}/${documentId}/${filename}`
-      : null;
+      (file ? file.name.replace(/\.[^.]+$/, "").slice(0,300) : "Untitled clinical policy");
+    const storagePath = file ? `${organisationId}/${documentId}/${filename}` : null;
 
     let extractedText = pastedText;
-
     let checksum: string | null = null;
+
     if (file) {
       const buffer = Buffer.from(await file.arrayBuffer());
       checksum = createHash("sha256").update(buffer).digest("hex");
@@ -104,34 +144,21 @@ export async function POST(request: Request) {
           upsert: false,
         });
 
-      if (uploadError) {
-        throw new Error(`Storage upload failed: ${uploadError.message}`);
-      }
+      if (uploadError) throw new Error(`Storage upload failed: ${uploadError.message}`);
 
       if (!extractedText && TEXT_MIME_TYPES.has(mimeType)) {
         extractedText = buffer.toString("utf8").trim();
       }
     }
 
-    if (extractedText.length > 2_000_000) {
-      return NextResponse.json(
-        { error: "Extracted text exceeds the current 2,000,000 character ingestion limit." },
-        { status: 413 }
-      );
-    }
-
     const canIndex = Boolean(extractedText) && isEmbeddingConfigured();
-    const initialStatus = !extractedText
-      ? "needs_extraction"
-      : canIndex
-        ? "processing"
-        : "uploaded";
+    const initialStatus = !extractedText ? "needs_extraction" : canIndex ? "processing" : "uploaded";
 
     const { error: insertError } = await supabase.from("knowledge_documents").insert({
       id: documentId,
       organization_id: organisationId,
       title,
-      source_filename: file?.name || null,
+      source_filename: file?.name?.slice(0,300) || null,
       storage_path: storagePath,
       mime_type: mimeType,
       status: initialStatus,
@@ -145,28 +172,29 @@ export async function POST(request: Request) {
 
     if (insertError) throw new Error(`Document insert failed: ${insertError.message}`);
 
+    auditEvent("knowledge_document_accepted",{
+      requestId:ctx.requestId,
+      documentId,
+      organisationId,
+      mimeType,
+      bytes:file?.size || 0,
+      textCharacters:extractedText.length,
+    });
+
     if (!extractedText) {
-      return NextResponse.json(
-        {
-          id: documentId,
-          status: "needs_extraction",
-          message:
-            "File stored successfully. PDF/DOCX text extraction is the remaining parser step before embedding.",
-        },
-        { status: 202 }
-      );
+      return jsonResponse({
+        id: documentId,
+        status: "needs_extraction",
+        message: "File stored successfully. PDF/DOCX text extraction is required before embedding.",
+      },ctx.requestId,202);
     }
 
     if (!isEmbeddingConfigured()) {
-      return NextResponse.json(
-        {
-          id: documentId,
-          status: "uploaded",
-          message:
-            "Document text is stored, but an embedding provider must be configured before indexing.",
-        },
-        { status: 202 }
-      );
+      return jsonResponse({
+        id: documentId,
+        status: "uploaded",
+        message: "Document text is stored, but an embedding provider must be configured before indexing.",
+      },ctx.requestId,202);
     }
 
     try {
@@ -174,6 +202,9 @@ export async function POST(request: Request) {
       if (!chunks.length) throw new Error("No indexable text was found.");
 
       const vectors = await embedInBatches(chunks.map((chunk) => chunk.content));
+      if(vectors.length!==chunks.length){
+        throw new Error("Embedding response count did not match chunk count.");
+      }
 
       const rows = chunks.map((chunk, index) => ({
         document_id: documentId,
@@ -181,7 +212,7 @@ export async function POST(request: Request) {
         chunk_index: chunk.index,
         content: chunk.content,
         char_count: chunk.charCount,
-        metadata: { source_filename: file?.name || null, title },
+        metadata: { source_filename: file?.name?.slice(0,300) || null, title },
         embedding: vectors[index],
       }));
 
@@ -209,14 +240,17 @@ export async function POST(request: Request) {
 
       if (readyError) throw new Error(readyError.message);
 
-      return NextResponse.json({
-        id: documentId,
-        status: "ready",
-        chunks: chunks.length,
+      auditEvent("knowledge_document_indexed",{
+        requestId:ctx.requestId,
+        documentId,
+        organisationId,
+        chunks:chunks.length,
+        durationMs:Date.now()-ctx.startedAt,
       });
+
+      return jsonResponse({ id: documentId, status: "ready", chunks: chunks.length },ctx.requestId);
     } catch (indexError) {
-      const detail =
-        indexError instanceof Error ? indexError.message : "Unknown indexing error";
+      const detail = indexError instanceof Error ? indexError.message : "Unknown indexing error";
       await supabase
         .from("knowledge_documents")
         .update({
@@ -225,16 +259,21 @@ export async function POST(request: Request) {
           metadata: {
             ingestion: "hive-rag-v1",
             text_available: true,
-            indexing_error: detail.slice(0, 500),
+            indexing_error: "Indexing failed; see server audit logs with request ID.",
           },
         })
         .eq("id", documentId)
         .eq("organization_id", organisationId);
+
+      auditEvent("knowledge_document_index_failed",{
+        requestId:ctx.requestId,
+        documentId,
+        organisationId,
+        detail:detail.slice(0,500),
+      });
       throw indexError;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Document ingestion failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return safeErrorResponse(error,"Document ingestion failed.",ctx.requestId);
   }
 }
