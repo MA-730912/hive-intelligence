@@ -10,6 +10,7 @@ import SessionControls,{type SessionRole,type SessionStatus} from "./SessionCont
 import ReplayTimeline,{type ReplayEvent} from "./ReplayTimeline";
 import ObserverPanel from "./ObserverPanel";
 import AutomationPanel from "./AutomationPanel";
+import VirtualNurseChat from "./VirtualNurseChat";
 import {septicShockSimulation as scenario} from "@/lib/simulation/scenarios/septic-shock";
 import {generateVariableLabSet} from "@/lib/simulation/lab-engine";
 import {applyMedicationEffect} from "@/lib/simulation/medication-engine";
@@ -242,7 +243,8 @@ export default function SimulationSession(){
       </section>
 
       <aside>
-        <VirtualTeamPanel onAction={teamAction}/>
+        <VirtualNurseChat disabled={status!=="running"} onAction={(action,delta)=>{addEvent(action);award(delta)}}/>
+        <div style={{marginTop:18}}><VirtualTeamPanel onAction={teamAction}/></div>
         <div className="card" style={{marginTop:18}}>
           <div className="eyebrow">Current bedside cue</div>
           <div className="message ai"><strong>Virtual Nurse:</strong><p>{state.nurseCue}</p></div>
