@@ -13,7 +13,7 @@ Standalone clinical AI infrastructure and intelligence platform.
 - Organisation-scoped document metadata
 - Text chunking with overlap
 - OpenAI-compatible embedding gateway
-- 1536-dimensional pgvector storage
+- 384-dimensional pgvector storage
 - HNSW vector index
 - Organisation-filtered similarity-search RPC
 - Knowledge Documents upload/indexing workspace
@@ -50,7 +50,7 @@ It creates:
 - organisations and organisation memberships
 - knowledge document metadata
 - chunk storage
-- `extensions.vector(1536)` embeddings
+- `extensions.vector(384)` embeddings
 - HNSW cosine index
 - `match_knowledge_chunks` retrieval function
 - private `hive-knowledge` Storage bucket
@@ -67,15 +67,24 @@ HIVE_ORGANISATION_ID=<uuid>
 A legacy `SUPABASE_SERVICE_ROLE_KEY` is also accepted server-side. Never expose either server secret through a `NEXT_PUBLIC_` variable.
 
 ## Embeddings
-The RAG schema currently expects 1536-dimensional embeddings.
+The RAG schema currently expects 384-dimensional embeddings.
+
+Preferred current path: the deployed Supabase Edge Function `hive-embed` using the built-in `gte-small` model:
 
 ```bash
-HIVE_EMBEDDING_BASE_URL=https://your-openai-compatible-endpoint/v1
+HIVE_SUPABASE_EMBEDDING_URL=https://<project-ref>.supabase.co/functions/v1/hive-embed
+HIVE_SUPABASE_EMBEDDING_TOKEN=<valid Supabase JWT>
+```
+
+An OpenAI-compatible embedding endpoint remains supported as an alternative:
+
+```bash
+HIVE_EMBEDDING_BASE_URL=https://your-provider/v1
 HIVE_EMBEDDING_API_KEY=...
 HIVE_EMBEDDING_MODEL=...
 ```
 
-If the embedding endpoint and key are omitted, HIVE falls back to the main AI endpoint/key. The embedding model must return exactly 1536 dimensions.
+If the embedding endpoint and key are omitted, HIVE falls back to the main AI endpoint/key. The embedding model must return exactly 384 dimensions.
 
 ## Document ingestion
 Open:
