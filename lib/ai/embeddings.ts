@@ -68,7 +68,9 @@ export async function embedTexts(inputs: string[]) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+      ...(mode === "supabase-edge"
+        ? { apikey: apiKey }
+        : { Authorization: `Bearer ${apiKey}` }),
     },
     body: JSON.stringify(body),
     cache: "no-store",
