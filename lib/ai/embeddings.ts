@@ -1,8 +1,25 @@
 import "server-only";
 
-const DIMENSIONS = 1536;
+const DIMENSIONS = 384;
+
+type EmbeddingMode = "supabase-edge" | "openai-compatible";
 
 function config() {
+  const supabaseFunctionUrl = process.env.HIVE_SUPABASE_EMBEDDING_URL || "";
+  const supabaseFunctionToken =
+    process.env.HIVE_SUPABASE_EMBEDDING_TOKEN ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    "";
+
+  if (supabaseFunctionUrl && supabaseFunctionToken) {
+    return {
+      mode: "supabase-edge" as EmbeddingMode,
+      url: supabaseFunctionUrl,
+      apiKey: supabaseFunctionToken,
+      model: "gte-small",
+    };
+  }
+
   const baseUrl =
     process.env.HIVE_EMBEDDING_BASE_URL ||
     process.env.HIVE_AI_BASE_URL ||
@@ -15,40 +32,47 @@ function config() {
 
   if (!baseUrl || !apiKey || !model) {
     throw new Error(
-      "Embedding provider is not configured. Set HIVE_EMBEDDING_BASE_URL, HIVE_EMBEDDING_API_KEY and HIVE_EMBEDDING_MODEL."
+      "Embedding provider is not configured. Configure HIVE_SUPABASE_EMBEDDING_URL + token, or an OpenAI-compatible embedding endpoint."
     );
   }
 
-  return { baseUrl, apiKey, model };
+  return {
+    mode: "openai-compatible" as EmbeddingMode,
+    url: `${baseUrl.replace(/\/$/, "")}/embeddings`,
+    apiKey,
+    model,
+  };
 }
 
 export function isEmbeddingConfigured() {
   return Boolean(
-    (process.env.HIVE_EMBEDDING_BASE_URL || process.env.HIVE_AI_BASE_URL) &&
-      (process.env.HIVE_EMBEDDING_API_KEY || process.env.HIVE_AI_API_KEY) &&
-      process.env.HIVE_EMBEDDING_MODEL
+    (process.env.HIVE_SUPABASE_EMBEDDING_URL &&
+      (process.env.HIVE_SUPABASE_EMBEDDING_TOKEN ||
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)) ||
+      ((process.env.HIVE_EMBEDDING_BASE_URL || process.env.HIVE_AI_BASE_URL) &&
+        (process.env.HIVE_EMBEDDING_API_KEY || process.env.HIVE_AI_API_KEY) &&
+        process.env.HIVE_EMBEDDING_MODEL)
   );
 }
 
 export async function embedTexts(inputs: string[]) {
   if (!inputs.length) return [] as number[][];
 
-  const { baseUrl, apiKey, model } = config();
-  const response = await fetch(
-    `${baseUrl.replace(/\/$/, "")}/embeddings`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        input: inputs,
-      }),
-      cache: "no-store",
-    }
-  );
+  const { mode, url, apiKey, model } = config();
+  const body =
+    mode === "supabase-edge"
+      ? { input: inputs }
+      : { model, input: inputs };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     const detail = await response.text();
