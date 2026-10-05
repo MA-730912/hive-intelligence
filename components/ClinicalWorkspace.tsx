@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import {useState} from "react";
 import type {ClinicalAnalysis} from "@/lib/ai/clinical";
 
@@ -38,11 +39,11 @@ export default function ClinicalWorkspace({firmus=false}:{firmus?:boolean}){
 
   return <div className="workspace">
     <aside className="side">
-      <a className="active">Clinical Workspace</a>
-      <a>Clinical Knowledge</a>
+      <Link className="active" href="/workspace">Clinical Workspace</Link>
+      <Link href="/knowledge">Clinical Knowledge</Link>
       <a>Document Intelligence</a>
       <a>Simulation Studio</a>
-      <a>Control Centre</a>
+      <Link href="/dashboard">Control Centre</Link>
     </aside>
 
     <main className="main">
@@ -125,7 +126,7 @@ export default function ClinicalWorkspace({firmus=false}:{firmus?:boolean}){
           <p className="muted">The server route can target any approved OpenAI-compatible endpoint. The clinician UI does not need to change when compute moves to a sovereign provider.</p>
           <hr style={{borderColor:"var(--line)",margin:"20px 0"}}/>
           <div className="eyebrow">Next build</div>
-          <p className="muted">Clinical Knowledge RAG with source citations from approved hospital policies.</p>
+          <p className="muted">Clinical Knowledge is now live with source-backed retrieval from the demonstration policy library.</p>
         </aside>
       </div>
     </main>
