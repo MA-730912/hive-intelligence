@@ -482,3 +482,50 @@ a.card:hover{transform:translateY(-3px);border-color:#c8b16a}
   .exam-file-header,.exam-selection-summary{align-items:stretch;flex-direction:column}
   .exam-segment{display:grid;width:100%}
 }
+
+
+/* Integrated shift roster */
+.roster-card{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(246,231,170,.46),transparent 28%),
+    linear-gradient(180deg,#fffdf6,#f3f7ef)
+}
+.roster-strip{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px
+}
+.roster-shift{
+  display:grid;
+  gap:5px;
+  min-height:112px;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #d9ddcf;
+  background:linear-gradient(180deg,#fff,#f9f8f0);
+  box-shadow:0 8px 20px rgba(43,61,48,.06)
+}
+.roster-shift span{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.06em;
+  color:#7c6a37
+}
+.roster-shift strong{color:#264b3e}
+.roster-shift small{color:#63756c}
+.roster-shift.evening{
+  background:linear-gradient(180deg,#fff2c0,#fffaf0);
+  border-color:#ddc775
+}
+.roster-shift.night{
+  background:linear-gradient(145deg,#244f40,#173b31);
+  border-color:#214b3d
+}
+.roster-shift.night span,.roster-shift.night small{color:#d8e3db}
+.roster-shift.night strong{color:#f4dc8b}
+.roster-shift.day{
+  background:linear-gradient(180deg,#e8f2e3,#fbfdf9);
+  border-color:#bfd0b9
+}
+@media(max-width:1100px){.roster-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.roster-strip{grid-template-columns:1fr}}
