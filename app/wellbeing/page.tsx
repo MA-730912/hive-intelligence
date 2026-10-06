@@ -81,7 +81,7 @@ export default function WellbeingPage(){
           <h3>Shift pattern & recovery planning</h3>
           <p className="muted">HIVE can use roster patterns to make wellbeing suggestions more relevant for shift workers.</p>
         </div>
-        <button className="btn" type="button" onClick={()=>setShowRoster(v=>!v)}>{showRoster?"Hide roster":"Show roster"}</button>
+        <div className="actions" style={{marginTop:0}}><button className="btn" type="button" onClick={()=>setShowRoster(v=>!v)}>{showRoster?"Hide roster":"Show roster"}</button><Link className="btn primary" href="/roster">Open HIVE – Roster Schedule</Link></div>
       </div>
 
       {showRoster&&<>
