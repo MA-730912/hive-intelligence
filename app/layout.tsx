@@ -16,6 +16,7 @@ export default function RootLayout({children}:{children:React.ReactNode}){
         <Link href="/knowledge">Knowledge</Link>
         <Link href="/knowledge/documents">Documents</Link>
         <Link href="/clinician">Clinician Hub</Link>
+        <Link href="/wellbeing">Health & Wellbeing</Link>
         <Link href="/architecture">AI Architecture</Link>
         <Link href="/case-studies">Case Studies</Link>
         <Link href="/demo/firmus">Firmus Demo</Link>
