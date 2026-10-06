@@ -49,3 +49,8 @@ HIVE Clinical remains the care-delivery system.
 HIVE Intelligence remains the intelligence, professional-workspace, workforce-readiness and governance layer.
 
 The clinician-domain contracts should eventually be extracted into a shared package rather than copied between applications.
+
+
+## Current dashboard layer
+
+The Clinician Hub now includes a Today dashboard combining live credential reminders, professional payment reminders, calendar commitments, meeting join links and AI-style preparation prompts behind a provider-neutral calendar contract.
