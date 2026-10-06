@@ -22,7 +22,8 @@ export type HiveWorkspaceModule =
   | "members"
   | "governance"
   | "analytics"
-  | "adverse-events-learning";
+  | "adverse-events-learning"
+  | "wellbeing";
 
 export type HiveWorkspaceContext = {
   id: string;
@@ -57,13 +58,14 @@ export const MODULES: Record<HiveWorkspaceModule,HiveModuleDefinition> = {
   governance:{id:"governance",title:"AI Governance",description:"Model policy, audit, source provenance and safety controls.",href:"/architecture",badge:"GOV"},
   analytics:{id:"analytics",title:"Organisation Intelligence",description:"High-level readiness, utilisation and governance insights.",href:"/dashboard",badge:"EXEC"},
   "adverse-events-learning":{id:"adverse-events-learning",title:"Learning from Adverse Clinical Events",description:"Governance-led learning, simulation reconstruction, teaching and debrief from adverse clinical events.",href:"/architecture#adverse-events",badge:"LEARNING"},
+  wellbeing:{id:"wellbeing",title:"Health & Wellbeing",description:"Private wellbeing check-ins, recovery planning, fatigue awareness and AI-guided supportive suggestions.",href:"/wellbeing",badge:"WELLBEING"},
 };
 
 const ROLE_MODULES: Record<HiveWorkspaceRole,readonly HiveWorkspaceModule[]> = {
-  clinician:["today","clinical-ai","knowledge","credentials","organisations","competencies","cpd","wallet"],
-  "clinical-director":["today","clinical-ai","knowledge","credentials","organisations","competencies","cpd","simulation","adverse-events-learning","workforce-readiness","governance"],
+  clinician:["today","clinical-ai","knowledge","credentials","organisations","competencies","cpd","wellbeing","wallet"],
+  "clinical-director":["today","clinical-ai","knowledge","credentials","organisations","competencies","cpd","wellbeing","simulation","adverse-events-learning","workforce-readiness","governance"],
   "credentialling-officer":["knowledge","credentialling-admin","workforce-readiness","members"],
-  "simulation-educator":["today","knowledge","simulation","adverse-events-learning","competencies","cpd","workforce-readiness"],
+  "simulation-educator":["today","knowledge","wellbeing","simulation","adverse-events-learning","competencies","cpd","workforce-readiness"],
   "organisation-admin":["knowledge","documents","credentialling-admin","workforce-readiness","adverse-events-learning","members","governance","analytics"],
   executive:["workforce-readiness","adverse-events-learning","governance","analytics"],
 };
