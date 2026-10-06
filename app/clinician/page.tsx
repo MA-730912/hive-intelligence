@@ -29,10 +29,12 @@ export default function ClinicianHubPage(){
     <div className="grid" style={{padding:0,gridTemplateColumns:"repeat(3,minmax(0,1fr))"}}>
       {[
         ["Today","Meetings, AI reminders, credential alerts and professional obligations.","/clinician/today"],
+        ["HIVE – Roster Schedule","Shifts, requests, swaps, worked hours, pay estimates and roster intelligence.","/roster"],
         ["Credentials","AHPRA, fellowship/college, provider/prescriber numbers, indemnity and evidence.","/clinician/credentials"],
         ["My Organisations","Hospital memberships, onboarding, role and readiness by organisation.","/clinician/organisations"],
         ["Competency Passport","Clinical skills, simulation evidence, supervisor sign-off and revalidation.","/clinician/competencies"],
-        ["CPD & Education","Learning record, simulation completions, certificates and evidence.","/clinician/cpd"],
+        ["CME, CPD & Exam Preparation","Learning record, fellowship exam preparation, practice questions, simulation completions and certificates.","/clinician/cpd"],
+        ["Health & Wellbeing","Private check-ins, fatigue awareness, recovery planning and AI-guided supportive suggestions.","/wellbeing"],
         ["Professional Wallet","College fees, AHPRA renewal, indemnity, invoices, receipts and expense tracking.","/clinician/wallet"],
         ["Clinical Workspace","Return to HIVE clinical intelligence and documentation tools.","/workspace"],
       ].map(([title,desc,href])=><section className="card" key={title}>

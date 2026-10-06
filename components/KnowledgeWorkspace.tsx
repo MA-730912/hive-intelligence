@@ -50,8 +50,8 @@ export default function KnowledgeWorkspace(){
       <Link href="/workspace">Clinical Workspace</Link>
       <Link className="active" href="/knowledge">Clinical Knowledge</Link>
       <Link href="/knowledge/documents">Knowledge Documents</Link>
-      <a>Document Intelligence</a>
-      <a>Simulation Studio</a>
+      <Link href="/knowledge/documents">Document Intelligence</Link>
+      <Link href="/architecture#adverse-events">Simulation & Learning</Link>
       <Link href="/dashboard">Control Centre</Link>
     </aside>
     <main className="main">
