@@ -119,7 +119,7 @@ export default function RosterSchedulePage(){
             <div className="roster-day-top"><span>{shift.day}</span><small>{shift.date}</small></div>
             <strong>{shift.label}</strong>
             <small>{shift.location}</small>
-            <div className="roster-time">{shift.start%1?String(Math.floor(shift.start)).padStart(2,"0")+":30":String(Math.floor(shift.start)%24).padStart(2,"0")+":00"}–{shift.end%1?String(Math.floor(shift.end%24)).padStart(2,"0")+":30":String(Math.floor(shift.end%24).padStart(2,"0"))+":00"}</div>
+            <div className="roster-time">{shift.start%1?String(Math.floor(shift.start)%24).padStart(2,"0")+":30":String(Math.floor(shift.start)%24).padStart(2,"0")+":00"}–{shift.end%1?String(Math.floor(shift.end)%24).padStart(2,"0")+":30":String(Math.floor(shift.end)%24).padStart(2,"0")+":00"}</div>
             <div className="roster-pay-row"><span>{hours(shift)}h</span><b>{included?money(shiftPay):"Available"}</b></div>
             <div className="chips">
               <span className="chip">×{shift.multiplier}</span>
