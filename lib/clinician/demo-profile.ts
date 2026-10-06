@@ -40,3 +40,40 @@ export const demoClinicianProfile:ClinicianProfessionalProfile={
     {id:"exp-4",provider:"Simulation Conference",description:"Faculty development course",category:"education",amount:720,currency:"AUD",status:"awaiting_receipt"}
   ]
 };
+
+
+export const demoCalendarEvents = [
+  {
+    id:"meet-1",
+    title:"Emergency Department Operations Meeting",
+    startsAt:"2026-10-06T13:30:00+10:00",
+    endsAt:"2026-10-06T14:15:00+10:00",
+    provider:"microsoft-teams" as const,
+    joinUrl:"https://teams.microsoft.com/l/meetup-join/demo",
+    organiser:"ED Director",
+    preparation:["Review ED flow metrics","Check outstanding credential actions"],
+    importance:"high" as const,
+  },
+  {
+    id:"meet-2",
+    title:"Simulation Faculty Planning",
+    startsAt:"2026-10-06T16:00:00+10:00",
+    endsAt:"2026-10-06T16:45:00+10:00",
+    provider:"microsoft-teams" as const,
+    joinUrl:"https://teams.microsoft.com/l/meetup-join/demo-sim",
+    organiser:"Simulation Faculty",
+    preparation:["Open HIVE Simulation Studio","Review POCUS scenario list"],
+    importance:"normal" as const,
+  },
+  {
+    id:"meet-3",
+    title:"College CPD Webinar",
+    startsAt:"2026-10-07T18:00:00+10:00",
+    endsAt:"2026-10-07T19:00:00+10:00",
+    provider:"zoom" as const,
+    joinUrl:"https://zoom.us/j/demo",
+    organiser:"Professional College",
+    preparation:["Have CPD portfolio open"],
+    importance:"normal" as const,
+  }
+];
