@@ -23,7 +23,8 @@ export type HiveWorkspaceModule =
   | "governance"
   | "analytics"
   | "adverse-events-learning"
-  | "wellbeing";
+  | "wellbeing"
+  | "roster";
 
 export type HiveWorkspaceContext = {
   id: string;
@@ -59,15 +60,16 @@ export const MODULES: Record<HiveWorkspaceModule,HiveModuleDefinition> = {
   analytics:{id:"analytics",title:"Organisation Intelligence",description:"High-level readiness, utilisation and governance insights.",href:"/dashboard",badge:"EXEC"},
   "adverse-events-learning":{id:"adverse-events-learning",title:"Learning from Adverse Clinical Events",description:"Governance-led learning, simulation reconstruction, teaching and debrief from adverse clinical events.",href:"/architecture#adverse-events",badge:"LEARNING"},
   wellbeing:{id:"wellbeing",title:"Health & Wellbeing",description:"Private wellbeing check-ins, recovery planning, fatigue awareness and AI-guided supportive suggestions.",href:"/wellbeing",badge:"WELLBEING"},
+  roster:{id:"roster",title:"HIVE – Roster Schedule",description:"Intelligent shift scheduling, requests, swaps, hours, award-aware pay estimates and fatigue intelligence.",href:"/roster",badge:"ROSTER"},
 };
 
 const ROLE_MODULES: Record<HiveWorkspaceRole,readonly HiveWorkspaceModule[]> = {
-  clinician:["today","clinical-ai","knowledge","credentials","organisations","competencies","cpd","wellbeing","wallet"],
-  "clinical-director":["today","clinical-ai","knowledge","credentials","organisations","competencies","cpd","wellbeing","simulation","adverse-events-learning","workforce-readiness","governance"],
+  clinician:["today","roster","clinical-ai","knowledge","credentials","organisations","competencies","cpd","wellbeing","wallet"],
+  "clinical-director":["today","roster","clinical-ai","knowledge","credentials","organisations","competencies","cpd","wellbeing","simulation","adverse-events-learning","workforce-readiness","governance"],
   "credentialling-officer":["knowledge","credentialling-admin","workforce-readiness","members"],
   "simulation-educator":["today","knowledge","wellbeing","simulation","adverse-events-learning","competencies","cpd","workforce-readiness"],
-  "organisation-admin":["knowledge","documents","credentialling-admin","workforce-readiness","adverse-events-learning","members","governance","analytics"],
-  executive:["workforce-readiness","adverse-events-learning","governance","analytics"],
+  "organisation-admin":["roster","knowledge","documents","credentialling-admin","workforce-readiness","adverse-events-learning","members","governance","analytics"],
+  executive:["roster","workforce-readiness","adverse-events-learning","governance","analytics"],
 };
 
 export function modulesForRole(role:HiveWorkspaceRole){
