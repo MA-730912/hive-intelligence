@@ -32,7 +32,7 @@ export default function ClinicianHubPage(){
         ["Credentials","AHPRA, fellowship/college, provider/prescriber numbers, indemnity and evidence.","/clinician/credentials"],
         ["My Organisations","Hospital memberships, onboarding, role and readiness by organisation.","/clinician/organisations"],
         ["Competency Passport","Clinical skills, simulation evidence, supervisor sign-off and revalidation.","/clinician/competencies"],
-        ["CPD & Education","Learning record, simulation completions, certificates and evidence.","/clinician/cpd"],
+        ["CME, CPD & Exam Preparation","Learning record, fellowship exam preparation, practice questions, simulation completions and certificates.","/clinician/cpd"],
         ["Professional Wallet","College fees, AHPRA renewal, indemnity, invoices, receipts and expense tracking.","/clinician/wallet"],
         ["Clinical Workspace","Return to HIVE clinical intelligence and documentation tools.","/workspace"],
       ].map(([title,desc,href])=><section className="card" key={title}>
