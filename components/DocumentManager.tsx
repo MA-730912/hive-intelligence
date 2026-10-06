@@ -35,7 +35,12 @@ export default function DocumentManager(){
 
   async function submit(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
-    setLoading(true); setError(""); setMessage("");
+    setError(""); setMessage("");
+    if(configured===false){
+      setError("HIVE Knowledge storage is not connected yet. Connect the organisation Supabase knowledge store before uploading documents.");
+      return;
+    }
+    setLoading(true);
     try{
       const form=new FormData(event.currentTarget);
       const response=await fetch("/api/knowledge/documents",{method:"POST",body:form});
@@ -89,7 +94,7 @@ export default function DocumentManager(){
             <textarea className="textarea" name="text" placeholder="For TXT/MD/CSV/JSON this is extracted automatically. For PDF/DOCX in the current build, paste extracted text here if you want immediate indexing." />
 
             <div className="actions">
-              <button className="btn primary" disabled={loading||configured===false}>{loading?"Uploading & indexing…":"Upload to HIVE Knowledge"}</button>
+              <button className="btn primary" disabled={loading}>{loading?"Uploading & indexing…":"Upload to HIVE Knowledge"}</button>
             </div>
           </form>
 
