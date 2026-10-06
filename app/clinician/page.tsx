@@ -28,6 +28,7 @@ export default function ClinicianHubPage(){
 
     <div className="grid" style={{padding:0,gridTemplateColumns:"repeat(3,minmax(0,1fr))"}}>
       {[
+        ["Today","Meetings, AI reminders, credential alerts and professional obligations.","/clinician/today"],
         ["Credentials","AHPRA, fellowship/college, provider/prescriber numbers, indemnity and evidence.","/clinician/credentials"],
         ["My Organisations","Hospital memberships, onboarding, role and readiness by organisation.","/clinician/organisations"],
         ["Competency Passport","Clinical skills, simulation evidence, supervisor sign-off and revalidation.","/clinician/competencies"],
