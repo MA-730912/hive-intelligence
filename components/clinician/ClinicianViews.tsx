@@ -53,13 +53,43 @@ export function CompetenciesView(){
 
 export function CpdView(){
   const simulated=p.competencies.filter(c=>c.source==="simulation");
-  return <main className="section"><Header title="CPD & Education" subtitle="Learning, simulation evidence and professional-development records."/>
+  return <main className="section"><Header title="CME, CPD & Education" subtitle="Professional development, exam preparation, simulation evidence and learning records."/>
+    <div className="grid" style={{padding:0,gridTemplateColumns:"repeat(2,minmax(0,1fr))",marginBottom:18}}>
+      <section className="card">
+        <div className="eyebrow">Exam preparation</div>
+        <h3>Select Fellowship</h3>
+        <p className="muted">Choose your College or Fellowship pathway, then prepare for the relevant examination stream.</p>
+        <label className="muted" htmlFor="fellowship-select">Fellowship / College</label>
+        <select id="fellowship-select" className="workspace-select" defaultValue="ACEM" style={{marginTop:8}}>
+          <option value="ACEM">ACEM — Emergency Medicine</option>
+          <option value="RACP">RACP — Physicians</option>
+          <option value="ANZCA">ANZCA — Anaesthesia</option>
+          <option value="RACS">RACS — Surgery</option>
+          <option value="RACGP">RACGP — General Practice</option>
+          <option value="other">Other Fellowship</option>
+        </select>
+        <div className="actions">
+          <button className="btn">Primary Exam</button>
+          <button className="btn primary">Fellowship Exam</button>
+        </div>
+      </section>
+
+      <section className="card">
+        <div className="eyebrow">Exam practice questions</div>
+        <h3>Practice by exam level</h3>
+        <p className="muted">Question banks should support exam-style MCQs, SAQs/EMQs, viva/oral practice, explanations, progress tracking and targeted revision.</p>
+        <div className="message ai"><strong>Primary pathway</strong><p className="muted">Foundation sciences, core knowledge and exam-style practice.</p></div>
+        <div className="message"><strong>Fellowship pathway</strong><p className="muted">Advanced clinical reasoning, written questions, viva preparation and high-level decision making.</p></div>
+        <button className="btn primary">Start practice questions</button>
+      </section>
+    </div>
+
     <div className="card">
       <div className="eyebrow">Simulation-linked learning</div>
       <h3>Evidence from HIVE Simulation Studio</h3>
       {simulated.map(c=><div className="message" key={c.id}><strong>{c.title}</strong><p className="muted">{c.status.replaceAll("_"," ")}{c.lastAssessed?" · "+c.lastAssessed:""}</p></div>)}
     </div>
-    <div className="card"><div className="eyebrow">Roadmap</div><p className="muted">CPD hours, activity categories, uploaded certificates, supervisor attestations and exportable annual reports will plug into this record.</p></div>
+    <div className="card"><div className="eyebrow">Professional learning record</div><p className="muted">CME/CPD hours, activity categories, uploaded certificates, supervisor attestations, exam preparation activity and exportable annual reports will plug into this record.</p></div>
   </main>;
 }
 
