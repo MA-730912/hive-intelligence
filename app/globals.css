@@ -668,3 +668,176 @@ a.card:hover{transform:translateY(-3px);border-color:#c8b16a}
 @media(max-width:1200px){.roster-week{grid-template-columns:repeat(3,1fr)}.roster-kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.roster-two-col,.roster-hero{grid-template-columns:1fr;display:grid}.roster-request-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.roster-week,.roster-kpis{grid-template-columns:1fr}}
+
+
+/* Roster Control admin layer */
+.roster-mode-switch{
+  display:inline-grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  padding:5px;
+  margin-bottom:18px;
+  border:1px solid #d5dacd;
+  border-radius:13px;
+  background:#eef1e9
+}
+.roster-mode-switch button{
+  border:0;
+  border-radius:9px;
+  padding:9px 14px;
+  background:transparent;
+  color:#50665a;
+  font-weight:850;
+  cursor:pointer
+}
+.roster-mode-switch button.active{
+  background:linear-gradient(145deg,#214f40,#173b31);
+  color:#fff;
+  box-shadow:0 5px 14px rgba(23,59,49,.16)
+}
+.roster-control-hero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(246,231,170,.58),transparent 30%),
+    linear-gradient(145deg,#eef5e9,#fffdf6)
+}
+.roster-legend{display:flex;gap:8px;flex-wrap:wrap}
+.roster-legend span{
+  padding:6px 9px;
+  border-radius:999px;
+  border:1px solid #d9dece;
+  background:#fffdf7;
+  font-size:11px;
+  font-weight:800;
+  color:#435b4e
+}
+.staff-roster-table{overflow:visible}
+.staff-roster-head,
+.staff-roster-row{
+  display:grid;
+  grid-template-columns:2.2fr .75fr .8fr 1fr .7fr 1.6fr;
+  gap:14px;
+  align-items:center
+}
+.staff-roster-head{
+  padding:0 8px 10px;
+  color:#756d50;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase
+}
+.staff-roster-row{
+  padding:14px 8px;
+  border-top:1px solid rgba(165,177,160,.35)
+}
+.staff-identity{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0
+}
+.staff-identity>div{display:grid;gap:3px}
+.staff-identity small{color:#748078}
+.staff-photo-wrap{
+  position:relative;
+  width:48px;
+  height:48px;
+  flex:0 0 48px;
+  cursor:pointer
+}
+.staff-photo-wrap input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer
+}
+.staff-photo{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #e0ca78;
+  box-shadow:0 5px 14px rgba(43,59,45,.12)
+}
+.staff-photo.fallback{
+  background:linear-gradient(145deg,#315c49,#193e33);
+  color:#f2dc8a;
+  font-weight:900
+}
+.hours-input{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  max-width:95px;
+  border:1px solid #d6dacd;
+  border-radius:10px;
+  padding:6px 8px;
+  background:#fffdf8
+}
+.hours-input input{
+  width:52px;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#244b3c;
+  font-weight:900
+}
+.hours-input span{font-size:11px;color:#7a8178}
+.variance{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  padding:6px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900
+}
+.variance.overtime{background:#fff0bd;color:#8a6110;border:1px solid #dec36b}
+.variance.shortfall{background:#f7e1dd;color:#8d4336;border:1px solid #e7bdb4}
+.variance.balanced{background:#e4f1e2;color:#326144;border:1px solid #bed4bc}
+.leave-balance{display:flex;gap:6px;flex-wrap:wrap}
+.leave-balance span{
+  padding:6px 8px;
+  border-radius:9px;
+  background:#f6f2df;
+  border:1px solid #dfd6ad;
+  font-size:11px;
+  color:#5d593f
+}
+.leave-balance .sick-private{
+  background:#edf2ee;
+  border-color:#ced9d0;
+  color:#435b4d
+}
+.roster-sign{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  width:max-content;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.05em
+}
+.roster-sign.holiday{background:#f4d66c;color:#62480d;border:1px solid #d2ad42}
+.roster-sign.annual-leave{background:#dcead8;color:#315b42;border:1px solid #b8ceb6}
+.roster-sign.sick-leave{background:#eceff0;color:#4d5e61;border:1px solid #cdd4d6}
+@media(max-width:1100px){
+  .staff-roster-head{display:none}
+  .staff-roster-row{
+    grid-template-columns:1.6fr 1fr 1fr;
+    align-items:start
+  }
+}
+@media(max-width:720px){
+  .roster-mode-switch{display:grid;width:100%}
+  .roster-control-hero{align-items:stretch;flex-direction:column}
+  .staff-roster-row{grid-template-columns:1fr}
+}
