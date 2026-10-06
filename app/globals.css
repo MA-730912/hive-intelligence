@@ -50,3 +50,245 @@ a{color:inherit;text-decoration:none}.shell{min-height:100vh}
 .nav{padding-top:13px;padding-bottom:13px}
 .navlinks a{padding:7px 9px;border-radius:8px;font-size:12px}
 .hero .card .eyebrow{color:#f6dc88!important}
+
+
+/* =========================================================
+   HIVE INTELLIGENCE — PREMIUM PLATFORM THEME
+   Applied globally so every current surface shares one visual language.
+   ========================================================= */
+:root{
+  --forest:#183f34;
+  --forest-2:#215645;
+  --forest-3:#2f6b55;
+  --heritage-gold:#b88924;
+  --heritage-gold-deep:#8b6616;
+  --champagne:#f6e7aa;
+  --butter:#fff2bf;
+  --cream:#fffaf0;
+  --sage:#dce8d7;
+  --sage-deep:#b9cdb7;
+  --charcoal:#17312b;
+  --premium-shadow:0 18px 44px rgba(25,55,43,.11);
+  --premium-shadow-hover:0 24px 58px rgba(25,55,43,.16)
+}
+
+body{
+  background:
+    radial-gradient(circle at 92% 4%,rgba(184,137,36,.13),transparent 24%),
+    radial-gradient(circle at 4% 18%,rgba(47,107,85,.11),transparent 25%),
+    linear-gradient(180deg,#f8f5e9 0%,#eef3e8 45%,#e7eee3 100%);
+  color:var(--charcoal)
+}
+
+/* premium dark navigation across the whole product */
+.nav{
+  background:linear-gradient(100deg,#173b31 0%,#214f40 58%,#2d624d 100%);
+  border-bottom:1px solid rgba(246,231,170,.2);
+  box-shadow:0 8px 26px rgba(21,48,39,.18);
+  backdrop-filter:blur(18px)
+}
+.brand{color:#fff}.brand:before{
+  background:linear-gradient(145deg,#d5ab4c,#9b7118);
+  color:#173b31;
+  box-shadow:0 7px 18px rgba(0,0,0,.16)
+}
+.brand span{color:#f1d983}
+.navlinks{color:#dfeadf}
+.navlinks a{color:#e9f0e8}
+.navlinks a:hover{
+  color:#183f34;
+  background:#f4dfa0;
+  box-shadow:0 6px 18px rgba(0,0,0,.13)
+}
+
+/* richer hero */
+.hero{
+  background:
+    linear-gradient(115deg,rgba(255,250,235,.94),rgba(239,244,230,.94)),
+    radial-gradient(circle at 80% 20%,rgba(184,137,36,.18),transparent 34%);
+  border-bottom:1px solid rgba(139,102,22,.14)
+}
+.hero h1{color:#173b31}
+.hero h1 strong{color:#9b7118}
+.hero p{color:#4f665c}
+.hero .card{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(246,231,170,.18),transparent 34%),
+    linear-gradient(145deg,#1d4a3b,#102f28);
+  border:1px solid rgba(246,231,170,.18);
+  box-shadow:0 28px 70px rgba(16,47,40,.28)
+}
+
+/* stronger headings and page framing */
+.section{position:relative}
+.section:before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:130px;
+  background:linear-gradient(90deg,rgba(255,244,204,.45),rgba(220,232,215,.28),transparent 74%);
+  pointer-events:none
+}
+.section h2,.main h2{color:#173b31;font-weight:900}
+.section h3,.main h3{color:#214f40}
+.eyebrow{color:#8b6616}
+.eyebrow:before{
+  background:#b88924;
+  box-shadow:0 0 0 4px rgba(184,137,36,.14)
+}
+
+/* cards now have depth and stronger top-edge accents */
+.card{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(159,173,145,.34);
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(250,248,239,.96));
+  box-shadow:var(--premium-shadow)
+}
+.card:before{
+  content:"";
+  position:absolute;
+  left:0;top:0;right:0;height:3px;
+  background:linear-gradient(90deg,#245541,#b88924,#f2d984);
+  opacity:.72
+}
+.card:hover{box-shadow:var(--premium-shadow-hover)}
+.grid>.card:nth-child(3n+2),
+.module-card:nth-child(3n+2){
+  background:linear-gradient(180deg,#fff6d5,#fffdf6)
+}
+.grid>.card:nth-child(3n+3),
+.module-card:nth-child(3n+3){
+  background:linear-gradient(180deg,#edf5e8,#fbfdf9)
+}
+
+/* more premium workspaces */
+.workspace{background:rgba(248,247,239,.58)}
+.side{
+  background:linear-gradient(180deg,#173f34 0%,#224f40 100%);
+  border-right:1px solid rgba(246,231,170,.16);
+  box-shadow:8px 0 28px rgba(26,55,43,.08)
+}
+.side a{color:#d6e3da}
+.side a.active,.side a:hover{
+  background:linear-gradient(90deg,#f4dfa0,#fff0bd);
+  color:#173f34;
+  box-shadow:0 6px 18px rgba(0,0,0,.12)
+}
+.main{background:linear-gradient(180deg,rgba(250,248,239,.7),rgba(239,244,232,.58))}
+
+/* controls and inputs */
+.btn{
+  border-color:#d4d8c9;
+  background:linear-gradient(180deg,#fff,#faf8ef);
+  color:#234b3e;
+  box-shadow:0 4px 12px rgba(34,67,51,.06)
+}
+.btn:hover{
+  background:linear-gradient(180deg,#fff3c7,#f8e7a9);
+  color:#173f34;
+  border-color:#d8bd6c
+}
+.btn.primary{
+  background:linear-gradient(135deg,#214f40,#173b31);
+  border-color:#173b31;
+  color:#fff;
+  box-shadow:0 7px 18px rgba(23,59,49,.2)
+}
+.btn.primary:hover{background:linear-gradient(135deg,#2c644f,#1b4437)}
+.textarea,.workspace-select{
+  background:#fffdf7;
+  border-color:#d7d9ca;
+  box-shadow:inset 0 1px 2px rgba(42,55,45,.03)
+}
+.textarea:focus,.workspace-select:focus{
+  border-color:#b88924;
+  box-shadow:0 0 0 3px rgba(184,137,36,.11)
+}
+
+/* premium messages, banners and status chips */
+.message{
+  background:linear-gradient(180deg,#fffef9,#f8f8f2);
+  border-color:#dfe2d5
+}
+.message.ai{
+  background:linear-gradient(135deg,#eaf3e7,#fff5ce);
+  border-color:#ccd7b8
+}
+.demo-banner{
+  background:
+    linear-gradient(90deg,#f3d879 0,#fff1b9 42%,#f8f7e8 100%);
+  border-color:#d7b654;
+  color:#294438;
+  box-shadow:0 10px 24px rgba(117,88,20,.08)
+}
+.chip,.pill{
+  border-color:#d5d9ca;
+  background:#eef4e9;
+  color:#315745
+}
+.pill.planned{background:#fff0b8;color:#805e13}
+.pill.demo{background:#eceee8;color:#5c6d62}
+
+/* dashboard */
+.workspace-switcher{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,245,199,.9),transparent 35%),
+    linear-gradient(135deg,#fffaf0,#edf4e7);
+  border-color:#d9c47c
+}
+.workspace-summary .card:nth-child(1){
+  background:linear-gradient(145deg,#1f4d3e,#173b31);
+  color:#fff;
+  border-color:#234c3e
+}
+.workspace-summary .card:nth-child(1) .muted{color:#c9d7cd}
+.workspace-summary .card:nth-child(1) .kpi{color:#f1d983}
+.workspace-summary .card:nth-child(2){
+  background:linear-gradient(145deg,#a77a1d,#c59a38);
+  color:#fff;
+  border-color:#9d731c
+}
+.workspace-summary .card:nth-child(2) .muted{color:#fff5d8}
+.workspace-summary .card:nth-child(2) .kpi{color:#fff}
+.workspace-summary .card:nth-child(3){
+  background:linear-gradient(145deg,#dce9d7,#f9fbf5)
+}
+
+/* architecture and audit screens */
+.arch-card:nth-child(4n+1){background:linear-gradient(180deg,#fff4c5,#fffdf8)}
+.arch-card:nth-child(4n+2){background:linear-gradient(180deg,#e7f1e3,#fff)}
+.arch-card:nth-child(4n+3){background:linear-gradient(180deg,#f6eee0,#fff)}
+.arch-card:nth-child(4n+4){background:linear-gradient(180deg,#e1ece6,#fff)}
+.arch-card .num{color:#9a7119;font-size:13px}
+
+/* case study / long-form clinical content */
+.section>p.muted{color:#536a5d}
+.section>div.grid .card,
+.section>section.card,
+.section>div.chat .card{backdrop-filter:blur(8px)}
+li{line-height:1.55}
+hr{opacity:.72}
+
+/* document library file picker */
+input[type="file"]{
+  padding:10px;
+  border:1px dashed #b5bca7;
+  border-radius:10px;
+  background:#fff9e8;
+  color:#39584b
+}
+
+/* fine polish */
+.kpi{color:#214f40}
+.status .dot,.dot{background:#6da55e;box-shadow:0 0 0 4px rgba(109,165,94,.15)}
+.module-link{color:#8b6616}
+a.card{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+a.card:hover{transform:translateY(-3px);border-color:#c8b16a}
+
+/* mobile keeps premium contrast without a persistent sidebar */
+@media(max-width:900px){
+  .side{display:none}
+  .nav{background:linear-gradient(100deg,#173b31,#255440)}
+  .section:before{height:92px}
+}
