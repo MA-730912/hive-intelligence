@@ -70,3 +70,28 @@ export type ClinicianProfessionalProfile = {
   competencies:ClinicianCompetency[];
   expenses:ProfessionalExpense[];
 };
+
+
+export type ClinicianCalendarEvent = {
+  id:string;
+  title:string;
+  startsAt:string;
+  endsAt:string;
+  provider:"microsoft-teams"|"zoom"|"google-meet"|"in-person"|"other";
+  joinUrl?:string;
+  location?:string;
+  organiser?:string;
+  preparation?:string[];
+  importance?:"low"|"normal"|"high";
+};
+
+export type ClinicianReminder = {
+  id:string;
+  kind:"credential"|"payment"|"meeting"|"competency"|"organisation";
+  title:string;
+  detail:string;
+  dueAt:string;
+  severity:"info"|"warning"|"urgent";
+  actionLabel?:string;
+  actionHref?:string;
+};
