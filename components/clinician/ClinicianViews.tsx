@@ -53,7 +53,7 @@ export function CompetenciesView(){
 
 export function CpdView(){
   const simulated=p.competencies.filter(c=>c.source==="simulation");
-  return <main className="section"><Header title="CME, CPD & Education" subtitle="Your professional learning file: exam preparation, simulation evidence, certificates and development records."/>
+  return <main className="section" id="top"><Header title="CME, CPD & Education" subtitle="Your professional learning file: exam preparation, simulation evidence, certificates and development records."/>
 
     <div className="learning-file-grid">
       <Link className="learning-folder exam" href="/clinician/cpd/exam-prep">
