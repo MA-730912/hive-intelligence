@@ -12,7 +12,7 @@ Standalone prototype housed in the HIVE Intelligence repository for safe develop
 - Event log and scenario state
 - Defibrillation / ROSC logic
 - Responsive browser UI
-- No AI dependency required for the MVP
+- Browser-generated monitor pulse tones and low-vital alarm tones\n- Live Instructor Console at `/instructor` using a same-browser control channel\n- Instructor triggers: deterioration, improve, VF, VT, desaturation, hypotension, pause/resume and reset\n- Two dynamic scenarios: Septic Shock and Anaphylaxis\n- No AI dependency required for the MVP
 
 ## Add the canonical room image
 
@@ -44,7 +44,7 @@ Open http://localhost:3000
 6. **Assessment/debrief** — timestamped actions, critical-action scoring and replay.
 7. **Optional HIVE Intelligence layer** — free-text patient dialogue, scenario authoring and debrief assistance.
 
-## Safety
+## Instructor mode\n\nOpen the learner room at `http://localhost:3000` and the instructor console at `http://localhost:3000/instructor` in a second tab/window. The two views communicate live using `BroadcastChannel`, which is ideal for the MVP and requires no backend. Multi-device simulation will later replace this with Supabase Realtime/WebSockets.\n\nEnable audio from the learner-room header after the first user interaction; browser autoplay rules prevent sound from starting automatically.\n\n## Safety
 This is a simulation/training prototype. Drug doses, physiological responses and scenario logic must be clinically reviewed and validated before any educational deployment.
 
 ## Next build targets
