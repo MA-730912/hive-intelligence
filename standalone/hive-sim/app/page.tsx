@@ -4,6 +4,7 @@ import Link from "next/link";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {applyInstructorAction,applyIntervention,createPatient,tickPatient,type InstructorAction,type Intervention} from "@/lib/sim";
 import {scenarios,type ScenarioId} from "@/lib/scenarios";
+import AirwayVentilatorWorkbench from "@/components/AirwayVentilatorWorkbench";
 
 type Panel="monitor"|"ventilator"|"defib"|"drugs"|"imaging"|"patient"|null;
 type TraceKind="ecg"|"pleth"|"capno";
@@ -95,6 +96,24 @@ export default function Home(){
     });
   }
 
+  function logEvent(message:string){
+    setEvents(e=>[`${fmt(patient.elapsed)}  ${message}`,...e].slice(0,10));
+  }
+
+  function secureAirway(){
+    setPatient(p=>({...p,airway:"Intubated"}));
+  }
+
+  function startVentilation(settings:{mode:string;vtMl:number;rate:number;peep:number;fio2:number}){
+    setPatient(p=>({
+      ...p,
+      airway:"Intubated",
+      rr:settings.rate,
+      etco2:Math.max(30,Math.min(40,p.etco2+5)),
+      spo2:Math.min(100,p.spo2+6)
+    }));
+  }
+
   function selectScenario(id:ScenarioId){
     setScenarioId(id);
     setPatient(createPatient(id));
@@ -161,6 +180,12 @@ export default function Home(){
 
       {paused&&<div className="pausedBanner">SIMULATION PAUSED</div>}
     </section>
+
+    <AirwayVentilatorWorkbench
+      onAirwaySecured={secureAirway}
+      onVentilationStarted={startVentilation}
+      onEvent={logEvent}
+    />
 
     {activeProp&&<div className="propReveal">
       <div className="propRevealHeader"><div><span>INSTRUCTOR PROP</span><b>{activeProp.label}</b></div><button onClick={()=>setActiveProp(null)}>×</button></div>
