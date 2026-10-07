@@ -39,15 +39,12 @@ export default function Home(){
   const [paused,setPaused]=useState(false);
   const [audioOn,setAudioOn]=useState(false);
   const [roomSrc,setRoomSrc]=useState("/resus-room.jpg");
+  const [showBrief,setShowBrief]=useState(true);
   const channelRef=useRef<BroadcastChannel|null>(null);
   const active=scenarios[scenarioId];
   const map=useMemo(()=>Math.round((patient.sbp+2*patient.dbp)/3),[patient.sbp,patient.dbp]);
 
-  useEffect(()=>{
-    if(paused)return;
-    const id=setInterval(()=>setPatient(p=>tickPatient(p)),1000);
-    return()=>clearInterval(id);
-  },[paused]);
+  useEffect(()=>{ if(paused)return; const id=setInterval(()=>setPatient(p=>tickPatient(p)),1000); return()=>clearInterval(id); },[paused]);
 
   useEffect(()=>{
     const ch=new BroadcastChannel("hive-sim-control");
@@ -67,6 +64,7 @@ export default function Home(){
         setScenarioId(data.scenarioId);
         setPatient(createPatient(data.scenarioId));
         setEvents([`00:00  Instructor loaded — ${scenarios[data.scenarioId].title}`]);
+        setShowBrief(true);
       }
     };
     return()=>ch.close();
@@ -75,10 +73,7 @@ export default function Home(){
   useEffect(()=>{
     if(!audioOn||paused)return;
     const beatMs=Math.max(320,60000/Math.max(40,patient.hr||60));
-    const id=setInterval(()=>{
-      const freq=patient.spo2>=95?880:patient.spo2>=90?740:560;
-      makeTone(freq,0.045,0.018);
-    },beatMs);
+    const id=setInterval(()=>makeTone(patient.spo2>=95?880:patient.spo2>=90?740:560,0.045,0.018),beatMs);
     return()=>clearInterval(id);
   },[audioOn,paused,patient.hr,patient.spo2]);
 
@@ -90,9 +85,9 @@ export default function Home(){
 
   function act(action:Intervention){
     setPatient(p=>{
-      const result=applyIntervention(p,action);
-      setEvents(e=>[`${fmt(p.elapsed)}  ${result.note}`,...e].slice(0,10));
-      return result.state;
+      const r=applyIntervention(p,action);
+      setEvents(e=>[`${fmt(p.elapsed)}  ${r.note}`,...e].slice(0,10));
+      return r.state;
     });
   }
 
@@ -100,86 +95,120 @@ export default function Home(){
     setScenarioId(id);
     setPatient(createPatient(id));
     setEvents([`00:00  Scenario loaded — ${scenarios[id].title}`]);
+    setShowBrief(true);
     channelRef.current?.postMessage({type:"scenario",scenarioId:id});
   }
 
-  return <main className="shell">
-    <header className="topbar">
-      <div><div className="eyebrow">HIVE INTELLIGENCE</div><h1>HIVE SIM <span>Resus 01 · High-Fidelity Simulation</span></h1></div>
-      <div className="status"><i/> LIVE SIMULATION <b>{fmt(patient.elapsed)}</b></div>
-      <button className="ghost" onClick={()=>{setAudioOn(v=>!v);if(!audioOn)makeTone(880)}}>{audioOn?"Audio On":"Enable Audio"}</button>
-      <Link className="consoleLink" href="/instructor" target="_blank">Instructor Console ↗</Link>
-      <button className="ghost" onClick={()=>setPaused(v=>!v)}>{paused?"Resume":"Pause"}</button>
+  return <main className="simRoomApp">
+    <header className="simHeader">
+      <div><div className="eyebrow">HIVE INTELLIGENCE</div><h1>HIVE SIM <span>RESUS 01</span></h1></div>
+      <div className="simHeaderActions">
+        <div className="status"><i/> LIVE <b>{fmt(patient.elapsed)}</b></div>
+        <button onClick={()=>{setAudioOn(v=>!v);if(!audioOn)makeTone(880)}}>{audioOn?"Audio on":"Enable audio"}</button>
+        <Link href="/instructor" target="_blank">Instructor ↗</Link>
+        <button onClick={()=>setPaused(v=>!v)}>{paused?"Resume":"Pause"}</button>
+      </div>
     </header>
 
-    <section className="workspace">
-      <div className="room">
-        <img src={roomSrc} onError={()=>setRoomSrc("/resus-room.svg")} alt="HIVE SIM resuscitation room" className="roomImage"/>
-        <div className="ambient"/>
-        <div className="roomTitle"><b>RESUS 01</b><span>SIMULATION CENTRE</span></div>
+    <section className="simScene">
+      <img src={roomSrc} onError={()=>setRoomSrc("/resus-room.svg")} className="sceneImage" alt="HIVE SIM resuscitation room"/>
+      <div className="sceneShade"/>
 
-        <button className="hot monitor" onClick={()=>setPanel("monitor")}><span>Patient Monitor</span></button>
-        <button className="hot vent" onClick={()=>setPanel("ventilator")}><span>Ventilator</span></button>
-        <button className="hot defib" onClick={()=>setPanel("defib")}><span>Defibrillator</span></button>
-        <button className="hot drugs" onClick={()=>setPanel("drugs")}><span>Drug Trolley</span></button>
-        <button className="hot patient" onClick={()=>setPanel("patient")}><span>Patient / Procedures</span></button>
-        <button className="hot imaging" onClick={()=>setPanel("imaging")}><span>X-ray / Imaging</span></button>
-
-        <div className="monitorStrip">
-          <div className="miniTrace"><small>II</small><Waveform kind="ecg"/></div>
-          <div className="miniTrace"><small>SpO₂</small><Waveform kind="pleth"/></div>
-          <div className="miniTrace"><small>CO₂</small><Waveform kind="capno"/></div>
-          <div className="vital green"><small>HR</small><strong>{patient.hr}</strong></div>
-          <div className="vital red"><small>NIBP</small><strong>{patient.sbp}/{patient.dbp}</strong><em>MAP {map}</em></div>
-          <div className="vital cyan"><small>SpO₂</small><strong>{patient.spo2}%</strong></div>
-          <div className="vital yellow"><small>EtCO₂</small><strong>{patient.etco2}</strong></div>
-        </div>
-
-        <div className="quickActions">
-          <span className="qaLabel">QUICK ACTIONS</span>
-          <button onClick={()=>act("oxygen")}>High-flow O₂</button>
-          <button onClick={()=>act("fluid")}>500 mL Fluid</button>
-          <button onClick={()=>act("adrenaline")}>Adrenaline</button>
-          <button onClick={()=>act("noradrenaline")}>Norad</button>
-          <button onClick={()=>act("intubate")}>RSI</button>
-        </div>
+      <div className="doorSign" aria-hidden="true">
+        <span>CT Scan →</span><span>MRI →</span><span>ICU →</span>
       </div>
 
-      <aside className="side">
-        <div className="card scenario">
-          <div className="label">ACTIVE SCENARIO</div>
-          <select className="scenarioSelect" value={scenarioId} onChange={e=>selectScenario(e.target.value as ScenarioId)}>
-            {Object.values(scenarios).map(s=><option key={s.id} value={s.id}>{s.title}</option>)}
-          </select>
-          <h2>{active.title}</h2><p>{active.subtitle}</p>
-          <div className="badges"><span>Resus</span><span>{active.difficulty}</span><span>Dynamic</span></div>
-        </div>
-        <div className="card">
-          <div className="label">PATIENT STATE</div>
-          <dl>
-            <div><dt>Rhythm</dt><dd>{patient.rhythm}</dd></div>
-            <div><dt>Airway</dt><dd>{patient.airway}</dd></div>
-            <div><dt>Perfusion</dt><dd>{patient.perfusion}</dd></div>
-            <div><dt>Temperature</dt><dd>{patient.temp.toFixed(1)} °C</dd></div>
-            <div><dt>Respiratory rate</dt><dd>{patient.rr}/min</dd></div>
-          </dl>
-        </div>
-        <div className="card log"><div className="label">EVENT LOG</div>{events.map((e,i)=><p key={i}>{e}</p>)}</div>
-      </aside>
+      <button className="roomObject roomMonitor" aria-label="Open patient monitor" onClick={()=>setPanel("monitor")}>
+        <span className="objectPulse"/>
+        <span className="monitorMini"><b>{patient.hr}</b><em>{patient.spo2}%</em><small>{patient.sbp}/{patient.dbp}</small></span>
+        <span className="objectLabel">MONITOR</span>
+      </button>
+
+      <button className="roomObject roomVent" onClick={()=>setPanel("ventilator")}><span className="objectPulse"/><span className="objectLabel">VENTILATOR</span></button>
+      <button className="roomObject roomDefib" onClick={()=>setPanel("defib")}><span className="objectPulse"/><span className="objectLabel">DEFIB</span></button>
+      <button className="roomObject roomDrugs" onClick={()=>setPanel("drugs")}><span className="objectPulse"/><span className="objectLabel">DRUGS</span></button>
+      <button className="roomObject roomPatient" onClick={()=>setPanel("patient")}><span className="patientTarget"/><span className="objectLabel">PATIENT</span></button>
+      <button className="roomObject roomImaging" onClick={()=>setPanel("imaging")}><span className="objectPulse"/><span className="objectLabel">X-RAY</span></button>
+
+      <div className="sceneVitals">
+        <span className="green">HR <b>{patient.hr}</b></span>
+        <span className="red">BP <b>{patient.sbp}/{patient.dbp}</b></span>
+        <span className="cyan">SpO₂ <b>{patient.spo2}%</b></span>
+        <span className="yellow">EtCO₂ <b>{patient.etco2}</b></span>
+      </div>
+
+      <div className="scenarioDock">
+        <div><small>ACTIVE CASE</small><strong>{active.title}</strong><span>{active.subtitle}</span></div>
+        <select value={scenarioId} onChange={e=>selectScenario(e.target.value as ScenarioId)}>
+          {Object.values(scenarios).map(s=><option key={s.id} value={s.id}>{s.title}</option>)}
+        </select>
+        <button onClick={()=>setShowBrief(true)}>Case brief</button>
+      </div>
+
+      <div className="actionDock">
+        <button onClick={()=>act("oxygen")}>O₂</button>
+        <button onClick={()=>act("fluid")}>500 mL</button>
+        <button onClick={()=>act("adrenaline")}>Adrenaline</button>
+        <button onClick={()=>act("noradrenaline")}>Norad</button>
+        <button onClick={()=>act("intubate")}>RSI</button>
+      </div>
+
+      <div className="lastEvent">{events[0]}</div>
+
+      {paused&&<div className="pausedBanner">SIMULATION PAUSED</div>}
     </section>
 
-    {panel&&<div className="overlay" onMouseDown={()=>setPanel(null)}>
-      <section className="device" onMouseDown={e=>e.stopPropagation()}>
+    {showBrief&&<div className="briefCard">
+      <button className="briefClose" onClick={()=>setShowBrief(false)}>×</button>
+      <div className="eyebrow">CASE BRIEF</div>
+      <h2>{active.title}</h2>
+      <p>{active.subtitle}</p>
+      <div className="briefPatient"><b>{active.patient}</b><span>{active.opening}</span></div>
+      <div className="briefGoals">{active.goals.map(g=><span key={g}>{g}</span>)}</div>
+      <button className="startCase" onClick={()=>setShowBrief(false)}>Enter Resus Room</button>
+    </div>}
+
+    {panel&&<div className="equipmentLayer" onMouseDown={()=>setPanel(null)}>
+      <section className={`equipmentCloseup ${panel}`} onMouseDown={e=>e.stopPropagation()}>
         <button className="close" onClick={()=>setPanel(null)}>×</button>
-        {panel==="monitor"&&<><div className="deviceTitle">MULTIPARAMETER MONITOR · BED 01</div><div className="fullMonitor"><div><small>ECG II</small><Waveform kind="ecg"/></div><div><small>PLETH</small><Waveform kind="pleth"/></div><div><small>CAPNOGRAPHY</small><Waveform kind="capno"/></div></div><div className="monitorGrid"><div className="green"><small>HR</small><b>{patient.hr}</b></div><div className="red"><small>NIBP</small><b>{patient.sbp}/{patient.dbp}</b><em>({map})</em></div><div className="cyan"><small>SpO₂</small><b>{patient.spo2}</b></div><div className="yellow"><small>EtCO₂</small><b>{patient.etco2}</b></div></div></>}
-        {panel==="ventilator"&&<><div className="deviceTitle">VENTILATOR</div><div className="ventScreen"><h3>{patient.airway==="Intubated"?"Volume Control":"STANDBY — PATIENT NOT INTUBATED"}</h3><Waveform kind="capno"/><div className="settings"><span>VT <b>450</b> mL</span><span>RR <b>{patient.airway==="Intubated"?16:0}</b></span><span>PEEP <b>5</b> cmH₂O</span><span>FiO₂ <b>0.60</b></span></div></div><button className="primary" onClick={()=>act("intubate")}>RSI + commence ventilation</button></>}
-        {panel==="defib"&&<><div className="deviceTitle">DEFIBRILLATOR / PACER</div><div className="defibDisplay"><div><small>RHYTHM</small><b>{patient.rhythm}</b></div><Waveform kind="ecg"/><strong>200 J</strong></div><div className="actions"><button>SYNC</button><button>CHARGE</button><button className="danger" onClick={()=>act("shock")}>SHOCK</button></div></>}
-        {panel==="drugs"&&<><div className="deviceTitle">EMERGENCY MEDICATIONS</div><div className="drugList"><button onClick={()=>act("adrenaline")}><b>Adrenaline</b><span>Administer</span></button><button onClick={()=>act("noradrenaline")}><b>Noradrenaline</b><span>Start infusion</span></button><button onClick={()=>act("fluid")}><b>Balanced crystalloid</b><span>500 mL</span></button></div></>}
-        {panel==="imaging"&&<><div className="deviceTitle">IMAGING CONSOLE</div><div className="xray"><div className="lungs">☁︎　☁︎</div><span>Portable AP Chest</span></div><div className="actions"><button>Portable CXR</button><button>CT Scan</button><button>MRI</button></div></>}
-        {panel==="patient"&&<><div className="deviceTitle">PATIENT ASSESSMENT / PROCEDURES</div><div className="patientPanel"><div className="avatar">{scenarioId==="anaphylaxis"?"34":"67"}</div><div><h3>{active.patient}</h3><p>{active.opening}</p><p>{active.exam}</p></div></div><div className="actions"><button>Airway</button><button>Breathing</button><button>Circulation</button><button>POCUS</button><button>IV / IO</button></div></>}
+
+        {panel==="monitor"&&<>
+          <div className="deviceTitle">BEDSIDE MONITOR</div>
+          <div className="fullMonitor"><div><small>ECG II</small><Waveform kind="ecg"/></div><div><small>PLETH</small><Waveform kind="pleth"/></div><div><small>CAPNOGRAPHY</small><Waveform kind="capno"/></div></div>
+          <div className="monitorGrid"><div className="green"><small>HR</small><b>{patient.hr}</b></div><div className="red"><small>NIBP</small><b>{patient.sbp}/{patient.dbp}</b><em>MAP {map}</em></div><div className="cyan"><small>SpO₂</small><b>{patient.spo2}</b></div><div className="yellow"><small>EtCO₂</small><b>{patient.etco2}</b></div></div>
+        </>}
+
+        {panel==="ventilator"&&<>
+          <div className="deviceTitle">VENTILATOR</div>
+          <div className="ventScreen"><h3>{patient.airway==="Intubated"?"Volume Control":"STANDBY — PATIENT NOT INTUBATED"}</h3><Waveform kind="capno"/><div className="settings"><span>VT <b>450</b> mL</span><span>RR <b>{patient.airway==="Intubated"?16:0}</b></span><span>PEEP <b>5</b> cmH₂O</span><span>FiO₂ <b>0.60</b></span></div></div>
+          <button className="primary" onClick={()=>act("intubate")}>RSI + commence ventilation</button>
+        </>}
+
+        {panel==="defib"&&<>
+          <div className="deviceTitle">DEFIBRILLATOR</div>
+          <div className="defibDisplay"><div><small>RHYTHM</small><b>{patient.rhythm}</b></div><Waveform kind="ecg"/><strong>200 J</strong></div>
+          <div className="actions"><button>SYNC</button><button>CHARGE</button><button className="danger" onClick={()=>act("shock")}>SHOCK</button></div>
+        </>}
+
+        {panel==="drugs"&&<>
+          <div className="deviceTitle">DRUG TROLLEY</div>
+          <div className="drugList"><button onClick={()=>act("adrenaline")}><b>Adrenaline</b><span>Administer</span></button><button onClick={()=>act("noradrenaline")}><b>Noradrenaline</b><span>Start infusion</span></button><button onClick={()=>act("fluid")}><b>Balanced crystalloid</b><span>500 mL</span></button></div>
+        </>}
+
+        {panel==="imaging"&&<>
+          <div className="deviceTitle">IMAGING</div>
+          <div className="xray"><div className="lungs">☁︎　☁︎</div><span>Portable AP Chest</span></div>
+          <div className="actions"><button>Portable CXR</button><button>CT Scan</button><button>MRI</button></div>
+        </>}
+
+        {panel==="patient"&&<>
+          <div className="deviceTitle">PATIENT EXAMINATION</div>
+          <div className="patientPanel"><div className="avatar">{scenarioId==="anaphylaxis"?"34":"67"}</div><div><h3>{active.patient}</h3><p>{active.opening}</p><p>{active.exam}</p></div></div>
+          <div className="examGrid"><button>Airway</button><button>Breathing</button><button>Circulation</button><button>Disability</button><button>Exposure</button><button>POCUS</button><button>IV / IO</button><button>Procedures</button></div>
+        </>}
       </section>
     </div>}
 
-    <footer><span>HIVE SIM · Simulation use only · Prototype physiology model</span><button onClick={()=>act("reset")}>Reset case</button></footer>
+    <footer className="simFooter"><span>HIVE SIM · simulation use only</span><button onClick={()=>act("reset")}>Reset case</button></footer>
   </main>
 }
