@@ -2,6 +2,17 @@
 
 Standalone prototype housed in the HIVE Intelligence repository for safe development. It does **not** depend on the parent application and can be moved to its own GitHub repository later.
 
+## Canonical specification
+
+The following documents are the authoritative source of truth for HIVE SIM:
+
+- `docs/CANONICAL_ARCHITECTURE.md` — product architecture and system boundaries
+- `docs/CANONICAL_PATIENT_MODEL.md` — hidden patient physiology model
+- `docs/CANONICAL_SCENARIO_SCHEMA.md` — reusable scenario definition standard
+- `docs/BUILD_ORDER.md` — canonical implementation sequence
+
+When prototype UI or code conflicts with these documents, the canonical specification takes precedence.
+
 ## Current MVP
 - **Room-first immersive Resus experience:** the whole clinical bay is the simulation interface rather than a dashboard of monitors
 - Photorealistic room asset path wired at `public/resus-room.jpg`, with automatic fallback to the schematic room
