@@ -104,13 +104,13 @@ export default function Home(){
     setPatient(p=>({...p,airway:"Intubated"}));
   }
 
-  function startVentilation(settings:{mode:string;vtMl:number;rate:number;peep:number;fio2:number}){
+  function startVentilation(settings:{mode:string;vtMl:number;rate:number;peep:number;fio2:number;estimatedEtco2:number;estimatedSpo2:number}){
     setPatient(p=>({
       ...p,
       airway:"Intubated",
       rr:settings.rate,
-      etco2:Math.max(30,Math.min(40,p.etco2+5)),
-      spo2:Math.min(100,p.spo2+6)
+      etco2:settings.estimatedEtco2,
+      spo2:settings.estimatedSpo2
     }));
   }
 
@@ -182,6 +182,7 @@ export default function Home(){
     </section>
 
     <AirwayVentilatorWorkbench
+      scenarioId={scenarioId}
       onAirwaySecured={secureAirway}
       onVentilationStarted={startVentilation}
       onEvent={logEvent}
