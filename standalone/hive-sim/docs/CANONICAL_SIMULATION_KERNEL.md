@@ -43,10 +43,33 @@ Ventilation may not start until:
 2. the circuit is connected; and
 3. patient setup is complete.
 
+### Respiratory Mechanics Engine
+Kernel v1 now includes a simplified respiratory model using:
+- respiratory-system compliance
+- airway resistance
+- dead space
+- metabolic CO₂ load
+- shunt burden
+- spontaneous effort placeholder
+
+From ventilator settings it derives:
+- peak airway pressure
+- plateau pressure
+- driving pressure
+- minute ventilation
+- alveolar ventilation
+- estimated EtCO₂
+- estimated SpO₂
+- alarm states
+
+It also generates pressure, flow and volume traces for the HIVE Vent display.
+
+Scenario-linked presets currently distinguish bronchospasm/anaphylaxis and sepsis/impaired gas exchange.
+
 ### Physiology integration
 Starting ventilation updates the patient state through the simulation layer.
 
-Kernel v1 currently uses simplified effects while the full respiratory mechanics model is being built.
+Kernel v1 now includes a simplified respiratory mechanics model. It is intended to prove architecture and interaction behavior, not to serve as a validated clinical ventilator model.
 
 Future respiratory model inputs will include:
 - airway resistance
