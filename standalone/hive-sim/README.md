@@ -9,6 +9,7 @@ The following documents are the authoritative source of truth for HIVE SIM:
 - `docs/CANONICAL_ARCHITECTURE.md` — product architecture and system boundaries
 - `docs/CANONICAL_UI.md` — authorized learner UI and interaction contract
 - `docs/CANONICAL_PATIENT_MODEL.md` — hidden patient physiology model
+- `docs/CANONICAL_SIMULATION_KERNEL.md` — deterministic object/device kernel and activation rules
 - `docs/CANONICAL_SCENARIO_SCHEMA.md` — reusable scenario definition standard
 - `docs/BUILD_ORDER.md` — canonical implementation sequence
 
@@ -24,7 +25,9 @@ When prototype UI or code conflicts with these documents, the canonical specific
 - Event log and scenario state
 - Defibrillation / ROSC logic
 - Responsive browser UI
-- Browser-generated monitor pulse tones and low-vital alarm tones\n- Live Instructor Console at `/instructor` using a same-browser control channel\n- Instructor triggers: deterioration, improve, VF, VT, desaturation, hypotension, pause/resume and reset\n- Two dynamic scenarios: Septic Shock and Anaphylaxis\n- No AI dependency required for the MVP
+- Browser-generated monitor pulse tones and low-vital alarm tones\n- Live Instructor Console at `/instructor` using a same-browser control channel\n- Instructor triggers: deterioration, improve, VF, VT, desaturation, hypotension, pause/resume and reset\n- Two dynamic scenarios: Septic Shock and Anaphylaxis\n- Draggable airway procedure props with ETT insertion / secure / circuit connection workflow
+- HIVE Vent state machine with patient setup, mode, parameters and gated activation
+- No AI dependency required for the MVP
 
 ## Add the canonical room image
 
