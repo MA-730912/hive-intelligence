@@ -19,6 +19,13 @@
 - pulse findings
 - skin / rash / perfusion
 
+## Simulation Kernel v1 — underway
+- clinical object state model
+- draggable airway props
+- ETT insertion / secure / circuit workflow
+- ventilator standby / configuration / activation state machine
+- simplified ventilation-to-physiology bridge
+
 ## Phase 3 — Procedures
 - IV
 - IO
