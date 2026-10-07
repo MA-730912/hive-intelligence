@@ -80,7 +80,15 @@ HIVE SIM
 │   ├── Ultrasound
 │   └── Imaging console
 │
-├── 6. INSTRUCTOR ENGINE
+├── 6. SCENARIO PROP ENGINE
+│   ├── Faculty media upload
+│   ├── JPEG / PNG / MP4
+│   ├── Scenario attachment
+│   ├── Hidden / revealed state
+│   ├── Instructor release
+│   └── Future trigger-based release
+│
+├── 7. INSTRUCTOR ENGINE
 │   ├── Live control
 │   ├── Pause / resume
 │   ├── Change physiology
@@ -89,7 +97,7 @@ HIVE SIM
 │   ├── Reveal information
 │   └── End scenario
 │
-├── 7. ASSESSMENT ENGINE
+├── 8. ASSESSMENT ENGINE
 │   ├── Timestamp every action
 │   ├── Critical action scoring
 │   ├── Delay penalties
@@ -97,7 +105,7 @@ HIVE SIM
 │   ├── Leadership / CRM metrics
 │   └── Scenario completion criteria
 │
-└── 8. DEBRIEF ENGINE
+└── 9. DEBRIEF ENGINE
     ├── Timeline
     ├── Clinical performance
     ├── Missed opportunities
