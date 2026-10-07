@@ -30,7 +30,6 @@ export default function Instructor(){
     return()=>ch.close();
   },[]);
 
-  useEffect(()=>()=>{props.forEach(p=>URL.revokeObjectURL(p.url));},[props]);
 
   function send(action:InstructorAction,label:string){
     channel?.postMessage({type:"action",action});
