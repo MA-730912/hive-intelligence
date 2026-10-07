@@ -7,6 +7,7 @@ import {scenarios,type ScenarioId} from "@/lib/scenarios";
 
 type Panel="monitor"|"ventilator"|"defib"|"drugs"|"imaging"|"patient"|null;
 type TraceKind="ecg"|"pleth"|"capno";
+type ScenarioProp={id:string;label:string;kind:"image"|"video";mime:string;url:string;fileName:string};
 
 const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
 
@@ -40,6 +41,7 @@ export default function Home(){
   const [audioOn,setAudioOn]=useState(false);
   const [roomSrc,setRoomSrc]=useState("/resus-room.jpg");
   const [showBrief,setShowBrief]=useState(true);
+  const [activeProp,setActiveProp]=useState<ScenarioProp|null>(null);
   const channelRef=useRef<BroadcastChannel|null>(null);
   const active=scenarios[scenarioId];
   const map=useMemo(()=>Math.round((patient.sbp+2*patient.dbp)/3),[patient.sbp,patient.dbp]);
@@ -50,7 +52,7 @@ export default function Home(){
     const ch=new BroadcastChannel("hive-sim-control");
     channelRef.current=ch;
     ch.onmessage=(event)=>{
-      const data=event.data as {type:string;action?:InstructorAction;scenarioId?:ScenarioId};
+      const data=event.data as {type:string;action?:InstructorAction;scenarioId?:ScenarioId;prop?:ScenarioProp};
       if(data.type==="action"&&data.action){
         setPatient(p=>{
           const r=applyInstructorAction(p,data.action!);
@@ -58,6 +60,8 @@ export default function Home(){
           return r.state;
         });
       }
+      if(data.type==="show-prop"&&data.prop){ setActiveProp(data.prop); setEvents(e=>[`PROP REVEALED  ${data.prop!.label}`,...e].slice(0,10)); }
+      if(data.type==="hide-prop")setActiveProp(null);
       if(data.type==="pause")setPaused(true);
       if(data.type==="resume")setPaused(false);
       if(data.type==="scenario"&&data.scenarioId){
@@ -157,6 +161,12 @@ export default function Home(){
 
       {paused&&<div className="pausedBanner">SIMULATION PAUSED</div>}
     </section>
+
+    {activeProp&&<div className="propReveal">
+      <div className="propRevealHeader"><div><span>INSTRUCTOR PROP</span><b>{activeProp.label}</b></div><button onClick={()=>setActiveProp(null)}>×</button></div>
+      <div className="propRevealMedia">{activeProp.kind==="video"?<video src={activeProp.url} controls autoPlay playsInline/>:<img src={activeProp.url} alt={activeProp.label}/>}</div>
+      <div className="propRevealFooter">{activeProp.fileName}</div>
+    </div>}
 
     {showBrief&&<div className="briefCard">
       <button className="briefClose" onClick={()=>setShowBrief(false)}>×</button>
