@@ -3,10 +3,10 @@
 Standalone prototype housed in the HIVE Intelligence repository for safe development. It does **not** depend on the parent application and can be moved to its own GitHub repository later.
 
 ## Current MVP
-- Cinematic interactive Resus Room
+- **Room-first immersive Resus experience:** the whole clinical bay is the simulation interface rather than a dashboard of monitors
 - Photorealistic room asset path wired at `public/resus-room.jpg`, with automatic fallback to the schematic room
 - Animated ECG, SpO₂ pleth and capnography traces
-- Clickable patient monitor, ventilator, defibrillator, drugs, patient and imaging
+- Clickable equipment in its physical room position: patient, monitor, ventilator, defibrillator, drugs and imaging\n- Contextual equipment close-ups that return the learner to the room after use\n- Embedded bedside monitor values inside the room instead of a dominant full-screen monitor strip
 - Live physiology timer and vital signs
 - Intervention effects through a TypeScript patient-state engine
 - Event log and scenario state
