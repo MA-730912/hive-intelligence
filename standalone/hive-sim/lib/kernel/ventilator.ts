@@ -1,3 +1,6 @@
+import type { RespiratoryMechanics, RespiratoryOutputs } from "./respiratory";
+import {calculateRespiratoryOutputs} from "./respiratory";
+
 export type VentMode = "VCV" | "PCV" | "PSV" | "SIMV" | "ASV";
 
 export type VentilatorState = {
@@ -7,6 +10,7 @@ export type VentilatorState = {
   rate:number;
   peep:number;
   fio2:number;
+  inspiratoryTimeSec:number;
   patientConfigured:boolean;
 };
 
@@ -17,6 +21,7 @@ export const initialVentilatorState:VentilatorState = {
   rate:16,
   peep:5,
   fio2:0.60,
+  inspiratoryTimeSec:1.0,
   patientConfigured:false,
 };
 
@@ -43,4 +48,14 @@ export function setVentSetting<K extends keyof VentilatorState>(
   value:VentilatorState[K]
 ):VentilatorState {
   return {...v,[key]:value};
+}
+
+export function ventilatorOutputs(v:VentilatorState,mechanics:RespiratoryMechanics):RespiratoryOutputs {
+  return calculateRespiratoryOutputs(mechanics,{
+    vtMl:v.vtMl,
+    rate:v.rate,
+    peep:v.peep,
+    fio2:v.fio2,
+    inspiratoryTimeSec:v.inspiratoryTimeSec,
+  });
 }
