@@ -4,13 +4,25 @@ Standalone prototype housed in the HIVE Intelligence repository for safe develop
 
 ## Current MVP
 - Cinematic interactive Resus Room
+- Photorealistic room asset path wired at `public/resus-room.jpg`, with automatic fallback to the schematic room
+- Animated ECG, SpO₂ pleth and capnography traces
 - Clickable patient monitor, ventilator, defibrillator, drugs, patient and imaging
 - Live physiology timer and vital signs
-- Intervention effects through a small TypeScript patient-state engine
+- Intervention effects through a TypeScript patient-state engine
 - Event log and scenario state
 - Defibrillation / ROSC logic
 - Responsive browser UI
 - No AI dependency required for the MVP
+
+## Add the canonical room image
+
+Place the HIVE SIM resuscitation room JPEG at:
+
+```
+standalone/hive-sim/public/resus-room.jpg
+```
+
+The app automatically uses it. If the JPEG is absent it falls back to `resus-room.svg`.
 
 ## Run locally
 
@@ -36,7 +48,6 @@ Open http://localhost:3000
 This is a simulation/training prototype. Drug doses, physiological responses and scenario logic must be clinically reviewed and validated before any educational deployment.
 
 ## Next build targets
-- Canvas-based ECG / pleth / capnography waveforms
 - Declarative JSON scenario schema
 - Anaphylaxis scenario
 - Instructor control room
