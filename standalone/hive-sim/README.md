@@ -7,6 +7,7 @@ Standalone prototype housed in the HIVE Intelligence repository for safe develop
 The following documents are the authoritative source of truth for HIVE SIM:
 
 - `docs/CANONICAL_ARCHITECTURE.md` — product architecture and system boundaries
+- `docs/CANONICAL_UI.md` — authorized learner UI and interaction contract
 - `docs/CANONICAL_PATIENT_MODEL.md` — hidden patient physiology model
 - `docs/CANONICAL_SCENARIO_SCHEMA.md` — reusable scenario definition standard
 - `docs/BUILD_ORDER.md` — canonical implementation sequence
